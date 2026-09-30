@@ -1,10 +1,22 @@
-function Planner() {
+import { useState } from "react";
+import { PlannerContext } from "./plannerContext";
+
+const initialPlanner = {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  sunday: [],
+};
+
+export function PlannerProvider({ children }) {
+  const [planner, setPlanner] = useState(initialPlanner);
+
   return (
-    <main>
-      <h1>Weekly Meal Planner</h1>
-      <p>Plan your meals for the week.</p>
-    </main>
+    <PlannerContext.Provider value={{ planner, setPlanner }}>
+      {children}
+    </PlannerContext.Provider>
   );
 }
-
-export default Planner;

@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from "react";
-
-const PlannerContext = createContext();
+cat > src/context/PlannerContext.jsx <<'EOF'
+import { useState } from "react";
+import { PlannerContext } from "./plannerContext";
 
 const initialPlanner = {
   monday: [],
@@ -21,7 +21,4 @@ export function PlannerProvider({ children }) {
     </PlannerContext.Provider>
   );
 }
-
-export function usePlanner() {
-  return useContext(PlannerContext);
-}
+EOF
