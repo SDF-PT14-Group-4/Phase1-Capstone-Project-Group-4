@@ -1,51 +1,71 @@
-import{useEffect, useState} from "react";
-import { Link,useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
 function MealDetails() {
   const { id } = useParams();
+  const mealId = id ?? "Not provided";
 
   const [meal, setMeal] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
+  const [loading, setLoading] = useState(Boolean(id));
+  const [error, setError] = useState("");
+
   useEffect(() => {
     async function fetchMealDetails() {
-      try{
+      try {
         setLoading(true);
-        setError('');
+        setError("");
+
         const response = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch meal details.');
+          throw new Error("Failed to fetch meal details.");
         }
 
         const data = await response.json();
- 
+
         if (!data.meals || data.meals.length === 0) {
-          setError('Meal not found.');
+          setError("Meal not found.");
           setMeal(null);
           return;
         }
 
         setMeal(data.meals[0]);
-
       } catch (err) {
-        setError('Unable to fetch meal details right now.');
+        setError("Unable to fetch meal details right now.");
         setMeal(null);
       } finally {
         setLoading(false);
       }
     }
-    
+
     if (id) {
       fetchMealDetails();
+    } else {
+      setLoading(false);
+      setMeal(null);
+      setError("");
     }
   }, [id]);
 
+  if (!id) {
+    return (
+      <main>
+        <h1>Meal Details</h1>
+        <p>Meal ID: {mealId}</p>
+      </main>
+    );
+  }
+
   if (loading) {
-    return <p>Loading meal details...</p>;
+    return (
+      <main>
+        <h1>Meal Details</h1>
+        <p>Meal ID: {mealId}</p>
+        <p>Loading meal details...</p>
+      </main>
+    );
   }
 
   if (error) {
@@ -60,25 +80,21 @@ function MealDetails() {
 
   const ingredients = [];
   for (let i = 1; i <= 20; i++) {
-    const ingredient = meal[`strIngredient${i}`];
-    const measure = meal[`strMeasure${i}`];
+    const ingredient = meal?.[`strIngredient${i}`];
+    const measure = meal?.[`strMeasure${i}`];
+
     if (ingredient && ingredient.trim()) {
       ingredients.push(`${measure ? measure.trim() : ""} ${ingredient.trim()}`.trim());
     }
   }
 
-
-    return (
+  return (
     <main>
       <Link to="/search">← Back to Search</Link>
 
       <h1>{meal.strMeal}</h1>
 
-      <img
-        src={meal.strMealThumb}
-        alt={meal.strMeal}
-        width="400"
-      />
+      <img src={meal.strMealThumb} alt={meal.strMeal} width="400" />
 
       <h2>Meal Information</h2>
 
@@ -110,11 +126,7 @@ function MealDetails() {
 
       {meal.strYoutube && (
         <p>
-          <a
-            href={meal.strYoutube}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href={meal.strYoutube} target="_blank" rel="noreferrer">
             Watch preparation video
           </a>
         </p>
