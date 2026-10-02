@@ -7,6 +7,9 @@ function MealDetails() {
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [price, setPrice] = useState("");
+  const [message, setMessage] = useState("");
   
   useEffect(() => {
     async function fetchMealDetails() {
@@ -67,6 +70,53 @@ function MealDetails() {
     }
   }
 
+    const addToBasket = () => {
+    if (!price || Number(price) <= 0) {
+      setMessage("Please enter a valid price.");
+      return;
+    }
+
+    const savedBasket = JSON.parse(
+      localStorage.getItem("mealBasket") || "[]"
+    );
+
+    const existingMeal = savedBasket.find(
+      (item) => item.id === meal.idMeal
+    );
+
+    let updatedBasket;
+
+    if (existingMeal) {
+      updatedBasket = savedBasket.map((item) =>
+        item.id === meal.idMeal
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+              price: Number(price),
+            }
+          : item
+      );
+    } else {
+      updatedBasket = [
+        ...savedBasket,
+        {
+          id: meal.idMeal,
+          name: meal.strMeal,
+          image: meal.strMealThumb,
+          price: Number(price),
+          quantity: 1,
+        },
+      ];
+    }
+
+    localStorage.setItem(
+      "mealBasket",
+      JSON.stringify(updatedBasket)
+    );
+
+    setMessage(`${meal.strMeal} added to basket.`);
+  };
+
 
     return (
     <main>
@@ -107,6 +157,28 @@ function MealDetails() {
       <h2>Instructions</h2>
 
       <p>{meal.strInstructions}</p>
+      
+      <h2>Add to Basket</h2>
+
+      <label>
+        Price (Ksh):{" "}
+        <input
+          type="number"
+          min="1"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Enter price"
+        />
+      </label>
+
+      <br />
+      <br />
+
+      <button onClick={addToBasket}>
+        Add to Basket
+      </button>
+
+      {message && <p>{message}</p>}
 
       {meal.strYoutube && (
         <p>
