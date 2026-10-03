@@ -1,13 +1,16 @@
 import { NavLink, Outlet } from "react-router-dom";
+import "./MainLayout.css";
 
 function MainLayout() {
   return (
-    <div>
-      <header>
-        <nav>
-          <NavLink to="/">GlobalTaste</NavLink>
+    <div className="app-shell">
+      <header className="site-header">
+        <nav className="site-nav">
+          <NavLink to="/" className="brand">
+            GlobalTaste
+          </NavLink>
 
-          <div>
+          <div className="nav-links">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/search">Search</NavLink>
             <NavLink to="/categories">Categories</NavLink>
@@ -19,11 +22,11 @@ function MainLayout() {
         </nav>
       </header>
 
-      <main>
+      <main className="page-content">
         <Outlet />
       </main>
 
-      <footer>
+      <footer className="site-footer">
         <p>© 2026 GlobalTaste</p>
       </footer>
     </div>
