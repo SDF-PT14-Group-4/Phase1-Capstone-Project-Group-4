@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MealGrid from "../components/meal/MealGrid";
-import { getMealsByCategory } from "../services/mealApi.js";
+
+const BASE_URL =
+  "https://www.themealdb.com/api/json/v1/1";
 
 export default function CategoryMeals() {
   const { category } = useParams();
 
-  const decodedCategory = decodeURIComponent(category);
+  const decodedCategory = decodeURIComponent(
+    category || ""
+  );
 
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,30 +23,44 @@ export default function CategoryMeals() {
         setLoading(true);
         setError("");
 
-        console.log("Loading category:", decodedCategory);
+        const response = await fetch(
+          `${BASE_URL}/filter.php?c=${encodeURIComponent(
+            decodedCategory
+          )}`
+        );
 
-        const data = await getMealsByCategory(decodedCategory);
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load category meals."
+          );
+        }
 
-        console.log("API returned:", data);
-        console.log("Meals returned:", data.meals);
+        const data = await response.json();
 
-        setMeals(data.meals);
+        setMeals(data.meals || []);
       } catch (error) {
         console.error("Category meals error:", error);
-        setError(error.message || "Unable to load category meals.");
+        setError("Unable to load category meals.");
       } finally {
         setLoading(false);
       }
     }
 
-    loadMeals();
+    if (decodedCategory) {
+      loadMeals();
+    } else {
+      setError("No category was selected.");
+      setLoading(false);
+    }
   }, [decodedCategory]);
 
   return (
     <main>
       <h1>{decodedCategory} Meals</h1>
 
-      {loading && <p>Loading meals...</p>}
+      {loading && (
+        <p>Loading {decodedCategory} meals...</p>
+      )}
 
       {error && <p>{error}</p>}
 

@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MealGrid from "../components/meal/MealGrid";
-import { getMealsByCuisine } from "../services/mealApi.js";
 
-function CuisineMeals() {
+const BASE_URL =
+  "https://www.themealdb.com/api/json/v1/1";
+
+export default function CuisineMeals() {
   const { cuisine } = useParams();
 
-  const decodedCuisine = decodeURIComponent(cuisine);
+  const decodedCuisine = decodeURIComponent(
+    cuisine || ""
+  );
 
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,36 +21,52 @@ function CuisineMeals() {
     async function loadMeals() {
       try {
         setLoading(true);
+        setError("");
 
-        const data = await getMealsByCuisine(
-          decodedCuisine
+        const response = await fetch(
+          `${BASE_URL}/filter.php?a=${encodeURIComponent(
+            decodedCuisine
+          )}`
         );
 
-        setMeals(data);
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load cuisine meals."
+          );
+        }
+
+        const data = await response.json();
+
+        setMeals(data.meals || []);
       } catch (error) {
+        console.error("Cuisine meals error:", error);
         setError("Unable to load cuisine meals.");
       } finally {
         setLoading(false);
       }
     }
 
-    loadMeals();
+    if (decodedCuisine) {
+      loadMeals();
+    } else {
+      setError("No cuisine was selected.");
+      setLoading(false);
+    }
   }, [decodedCuisine]);
 
   return (
     <main>
-
       <h1>{decodedCuisine} Cuisine</h1>
 
-      {loading && <p>Loading meals...</p>}
+      {loading && (
+        <p>Loading {decodedCuisine} meals...</p>
+      )}
 
       {error && <p>{error}</p>}
 
       {!loading && !error && (
         <MealGrid meals={meals} />
       )}
-
     </main>
   );
 }
-export default CuisineMeals;

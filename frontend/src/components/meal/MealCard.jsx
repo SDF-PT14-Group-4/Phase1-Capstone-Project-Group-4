@@ -7,14 +7,14 @@ function MealCard({ meal }) {
     isFavorite,
   } = useFavorites();
 
-  const favorite = isFavorite(meal.id);
+  const favorite = isFavorite(meal.idMeal);
 
   return (
     <article className="meal-card">
       <div className="meal-card-image">
         <img
-          src={meal.thumbnail}
-          alt={meal.name}
+          src={meal.strMealThumb}
+          alt={meal.strMeal}
         />
 
         <button
@@ -25,8 +25,8 @@ function MealCard({ meal }) {
           onClick={() => toggleFavorite(meal)}
           aria-label={
             favorite
-              ? `Remove ${meal.name} from favorites`
-              : `Add ${meal.name} to favorites`
+              ? `Remove ${meal.strMeal} from favorites`
+              : `Add ${meal.strMeal} to favorites`
           }
         >
           {favorite ? "♥" : "♡"}
@@ -34,17 +34,17 @@ function MealCard({ meal }) {
       </div>
 
       <div className="meal-card-content">
-        <h3>{meal.name}</h3>
+        <h3>{meal.strMeal}</h3>
 
-        {meal.category && (
-          <p>{meal.category}</p>
+        {meal.strCategory && (
+          <p>{meal.strCategory}</p>
         )}
 
-        {meal.cuisine && (
-          <p>{meal.cuisine}</p>
+        {meal.strArea && (
+          <p>{meal.strArea}</p>
         )}
 
-        <Link to={`/meal/${meal.id}`}>
+        <Link to={`/meal/${meal.idMeal}`}>
           View Recipe
         </Link>
       </div>

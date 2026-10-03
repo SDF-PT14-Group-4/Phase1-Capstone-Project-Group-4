@@ -2,7 +2,6 @@ import MealCard from "./MealCard";
 
 export default function MealGrid({ meals }) {
   if (!Array.isArray(meals)) {
-    console.error("MealGrid expected an array but received:", meals);
     return <p>Unable to display meals.</p>;
   }
 
@@ -14,7 +13,7 @@ export default function MealGrid({ meals }) {
     <div className="meal-grid">
       {meals.map((meal) => (
         <MealCard
-          key={meal.id}
+          key={meal.idMeal}
           meal={meal}
         />
       ))}

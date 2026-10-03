@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getCuisines } from "../services/mealApi.js";
+const BASE_URL =
+  "https://www.themealdb.com/api/json/v1/1";
 
 export default function Cuisines() {
   const [cuisines, setCuisines] = useState([]);
@@ -11,10 +12,19 @@ export default function Cuisines() {
   useEffect(() => {
     async function loadCuisines() {
       try {
-        const data = await getCuisines();
+        const response = await fetch(
+          `${BASE_URL}/list.php?a=list`
+        );
 
-        setCuisines(data);
+        if (!response.ok) {
+          throw new Error("Failed to load cuisines.");
+        }
+
+        const data = await response.json();
+
+        setCuisines(data.meals || []);
       } catch (error) {
+        console.error("Cuisine error:", error);
         setError("Unable to load cuisines.");
       } finally {
         setLoading(false);
@@ -25,20 +35,28 @@ export default function Cuisines() {
   }, []);
 
   if (loading) {
-    return <p>Loading cuisines...</p>;
+    return (
+      <main>
+        <h1>Explore Cuisines</h1>
+        <p>Loading cuisines...</p>
+      </main>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <main>
+        <h1>Explore Cuisines</h1>
+        <p>{error}</p>
+      </main>
+    );
   }
 
   return (
     <main>
-
       <h1>Explore Cuisines</h1>
 
       <div className="cuisine-grid">
-
         {cuisines.map((cuisine) => (
           <Link
             key={cuisine.strArea}
@@ -50,9 +68,7 @@ export default function Cuisines() {
             <h2>{cuisine.strArea}</h2>
           </Link>
         ))}
-
       </div>
-
     </main>
   );
 }

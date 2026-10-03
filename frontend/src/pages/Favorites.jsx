@@ -1,7 +1,4 @@
-import PageHeader from "../components/common/PageHeader";
-import EmptyState from "../components/common/EmptyState";
 import MealGrid from "../components/meal/MealGrid";
-
 import { useFavorites } from "../context/FavoritesContext";
 
 export default function Favorites() {
@@ -9,21 +6,15 @@ export default function Favorites() {
 
   return (
     <main>
-
-      <PageHeader
-        eyebrow="SAVED"
-        title="My Favorites"
-      />
+      <h1>My Favorites</h1>
 
       {favorites.length === 0 ? (
-        <EmptyState
-          title="No favorites yet"
-          message="Save meals you love and they will appear here."
-        />
+        <p>
+          You haven't added any favorites yet.
+        </p>
       ) : (
         <MealGrid meals={favorites} />
       )}
-
     </main>
   );
 }

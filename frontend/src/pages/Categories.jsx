@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getCategories } from "../services/mealApi.js";
+
+const BASE_URL =
+  "https://www.themealdb.com/api/json/v1/1";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -10,18 +12,20 @@ export default function Categories() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        setLoading(true);
-        setError("");
+        const response = await fetch(
+          `${BASE_URL}/categories.php`
+        );
 
-        const data = await getCategories();
+        if (!response.ok) {
+          throw new Error("Failed to load categories.");
+        }
+
+        const data = await response.json();
 
         setCategories(data.categories || []);
       } catch (error) {
-        console.error("Failed to load categories:", error);
-
-        setError(
-          error.message || "Unable to load categories."
-        );
+        console.error("Categories error:", error);
+        setError("Unable to load categories.");
       } finally {
         setLoading(false);
       }
@@ -52,28 +56,24 @@ export default function Categories() {
     <main>
       <h1>Meal Categories</h1>
 
-      {categories.length === 0 ? (
-        <p>No categories found.</p>
-      ) : (
-        <div className="category-grid">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/categories/${encodeURIComponent(
-                category.name
-              )}`}
-              className="category-card"
-            >
-              <img
-                src={category.thumbnail}
-                alt={category.name}
-              />
+      <div className="category-grid">
+        {categories.map((category) => (
+          <Link
+            key={category.idCategory}
+            to={`/categories/${encodeURIComponent(
+              category.strCategory
+            )}`}
+            className="category-card"
+          >
+            <img
+              src={category.strCategoryThumb}
+              alt={category.strCategory}
+            />
 
-              <h2>{category.name}</h2>
-            </Link>
-          ))}
-        </div>
-      )}
+            <h2>{category.strCategory}</h2>
+          </Link>
+        ))}
+      </div>
     </main>
   );
 }
