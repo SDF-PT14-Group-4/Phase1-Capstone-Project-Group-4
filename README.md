@@ -1,5 +1,9 @@
 # GlobalTaste
 
+## Live Demo
+
+[View the live application](https://phase1-capstone-project-group-4.netlify.app)
+
 GlobalTaste is a React + Vite meal discovery application that helps users explore meals, search by keyword, view ingredients and instructions, save favorites, and plan meals from around the world.
 
 ## Project overview
