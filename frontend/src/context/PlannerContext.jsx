@@ -14,8 +14,30 @@ const initialPlanner = {
 export function PlannerProvider({ children }) {
   const [planner, setPlanner] = useState(initialPlanner);
 
+  function addMeal(day, meal) {
+    setPlanner((currentPlanner) => ({
+      ...currentPlanner,
+      [day]: [...currentPlanner[day], meal],
+    }));
+  }
+
+  function removeMeal(day, mealId) {
+  setPlanner((currentPlanner) => ({
+    ...currentPlanner,
+    [day]: currentPlanner[day].filter(
+      (meal) => meal.idMeal !== mealId
+    ),
+  }));
+}
+
   return (
-    <PlannerContext.Provider value={{ planner, setPlanner }}>
+    <PlannerContext.Provider
+      value={{
+        planner,
+        addMeal,
+        removeMeal,
+      }}
+    >
       {children}
     </PlannerContext.Provider>
   );
