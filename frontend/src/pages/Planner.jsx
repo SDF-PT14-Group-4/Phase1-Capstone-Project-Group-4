@@ -1,22 +1,34 @@
-import { useState } from "react";
-import { PlannerContext } from "./plannerContext";
+import { usePlanner } from "../context/usePlanner";
 
-const initialPlanner = {
-  monday: [],
-  tuesday: [],
-  wednesday: [],
-  thursday: [],
-  friday: [],
-  saturday: [],
-  sunday: [],
-};
+function Planner() {
+  const { planner } = usePlanner();
 
-export function PlannerProvider({ children }) {
-  const [planner, setPlanner] = useState(initialPlanner);
+  const days = Object.keys(planner);
 
   return (
-    <PlannerContext.Provider value={{ planner, setPlanner }}>
-      {children}
-    </PlannerContext.Provider>
+    <main>
+      <h1>Weekly Meal Planner</h1>
+      <p>Plan your meals for the week.</p>
+
+      <section>
+        {days.map((day) => (
+          <div key={day}>
+            <h2>{day.charAt(0).toUpperCase() + day.slice(1)}</h2>
+
+            {planner[day].length === 0 ? (
+              <p>No meals planned.</p>
+            ) : (
+              <ul>
+                {planner[day].map((meal) => (
+                  <li key={meal.idMeal}>{meal.strMeal}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </section>
+    </main>
   );
 }
+
+export default Planner;

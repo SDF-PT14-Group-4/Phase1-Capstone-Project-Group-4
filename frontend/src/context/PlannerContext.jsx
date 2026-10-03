@@ -1,4 +1,3 @@
-cat > src/context/PlannerContext.jsx <<'EOF'
 import { useState } from "react";
 import { PlannerContext } from "./plannerContext";
 
@@ -21,4 +20,3 @@ export function PlannerProvider({ children }) {
     </PlannerContext.Provider>
   );
 }
-EOF

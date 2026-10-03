@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { PlannerContext } from "./PlannerContext";
+import { PlannerContext } from "./plannerContext";
 
 export function usePlanner() {
   return useContext(PlannerContext);
