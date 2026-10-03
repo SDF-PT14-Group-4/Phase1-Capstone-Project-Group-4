@@ -16,6 +16,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/meal" element={<MealDetails />} />
           <Route path="/meal/:id" element={<MealDetails />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/favorites" element={<Favorites />} />
