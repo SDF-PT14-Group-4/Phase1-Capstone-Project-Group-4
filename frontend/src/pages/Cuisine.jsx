@@ -1,15 +1,58 @@
-import PageHeader from "../components/common/PageHeader";
-import CuisineCard from "../components/meal/CuisineCard";
-import { SUPPORTED_CUISINES } from "../services/mealDbApi";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-function Cuisines() {
+import { getCuisines } from "../services/mealApi";
+
+export default function Cuisines() {
+  const [cuisines, setCuisines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadCuisines() {
+      try {
+        const data = await getCuisines();
+
+        setCuisines(data);
+      } catch (error) {
+        setError("Unable to load cuisines.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCuisines();
+  }, []);
+
+  if (loading) {
+    return <p>Loading cuisines...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
   return (
-    <>
-      <PageHeader eyebrow="EXPLORE" title="Cuisines" description="Explore meals by geographical or cultural cuisine/area." />
+    <main>
+
+      <h1>Explore Cuisines</h1>
+
       <div className="cuisine-grid">
-        {SUPPORTED_CUISINES.map((cuisine) => <CuisineCard key={cuisine} cuisine={cuisine} />)}
+
+        {cuisines.map((cuisine) => (
+          <Link
+            key={cuisine.strArea}
+            to={`/cuisines/${encodeURIComponent(
+              cuisine.strArea
+            )}`}
+            className="cuisine-card"
+          >
+            <h2>{cuisine.strArea}</h2>
+          </Link>
+        ))}
+
       </div>
-    </>
+
+    </main>
   );
 }
-export default Cuisines
