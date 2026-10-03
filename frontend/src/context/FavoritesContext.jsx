@@ -1,14 +1,28 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-const FavoritesContext = createContext();
+const FavoritesContext = createContext(undefined);
 
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState(() => {
-    const savedFavorites = localStorage.getItem("favorites");
+    try {
+      const savedFavorites = localStorage.getItem("favorites");
 
-    return savedFavorites
-      ? JSON.parse(savedFavorites)
-      : [];
+      return savedFavorites
+        ? JSON.parse(savedFavorites)
+        : [];
+    } catch (error) {
+      console.error(
+        "Unable to load favorites:",
+        error
+      );
+
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -20,11 +34,11 @@ export function FavoritesProvider({ children }) {
 
   const addFavorite = (meal) => {
     setFavorites((currentFavorites) => {
-      const alreadyFavorite = currentFavorites.some(
-        (favorite) => favorite.idMeal === meal.idMeal
+      const alreadyExists = currentFavorites.some(
+        (favorite) => favorite.id === meal.id
       );
 
-      if (alreadyFavorite) {
+      if (alreadyExists) {
         return currentFavorites;
       }
 
@@ -35,27 +49,23 @@ export function FavoritesProvider({ children }) {
   const removeFavorite = (mealId) => {
     setFavorites((currentFavorites) =>
       currentFavorites.filter(
-        (favorite) => favorite.idMeal !== mealId
+        (favorite) => favorite.id !== mealId
       )
     );
   };
 
-  const toggleFavorite = (meal) => {
-    const alreadyFavorite = favorites.some(
-      (favorite) => favorite.idMeal === meal.idMeal
+  const isFavorite = (mealId) => {
+    return favorites.some(
+      (favorite) => favorite.id === mealId
     );
+  };
 
-    if (alreadyFavorite) {
-      removeFavorite(meal.idMeal);
+  const toggleFavorite = (meal) => {
+    if (isFavorite(meal.id)) {
+      removeFavorite(meal.id);
     } else {
       addFavorite(meal);
     }
-  };
-
-  const isFavorite = (mealId) => {
-    return favorites.some(
-      (favorite) => favorite.idMeal === mealId
-    );
   };
 
   return (
@@ -64,8 +74,8 @@ export function FavoritesProvider({ children }) {
         favorites,
         addFavorite,
         removeFavorite,
-        toggleFavorite,
         isFavorite,
+        toggleFavorite,
       }}
     >
       {children}

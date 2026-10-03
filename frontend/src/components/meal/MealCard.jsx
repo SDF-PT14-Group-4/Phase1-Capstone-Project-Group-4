@@ -2,17 +2,19 @@ import { Link } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
 
 function MealCard({ meal }) {
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const {
+    toggleFavorite,
+    isFavorite,
+  } = useFavorites();
 
-  const favorite = isFavorite(meal.idMeal);
+  const favorite = isFavorite(meal.id);
 
   return (
     <article className="meal-card">
-
       <div className="meal-card-image">
         <img
-          src={meal.strMealThumb}
-          alt={meal.strMeal}
+          src={meal.thumbnail}
+          alt={meal.name}
         />
 
         <button
@@ -23,8 +25,8 @@ function MealCard({ meal }) {
           onClick={() => toggleFavorite(meal)}
           aria-label={
             favorite
-              ? `Remove ${meal.strMeal} from favorites`
-              : `Add ${meal.strMeal} to favorites`
+              ? `Remove ${meal.name} from favorites`
+              : `Add ${meal.name} to favorites`
           }
         >
           {favorite ? "♥" : "♡"}
@@ -32,24 +34,22 @@ function MealCard({ meal }) {
       </div>
 
       <div className="meal-card-content">
+        <h3>{meal.name}</h3>
 
-        <h3>{meal.strMeal}</h3>
-
-        {meal.strCategory && (
-          <p>{meal.strCategory}</p>
+        {meal.category && (
+          <p>{meal.category}</p>
         )}
 
-        {meal.strArea && (
-          <p>{meal.strArea}</p>
+        {meal.cuisine && (
+          <p>{meal.cuisine}</p>
         )}
 
-        <Link to={`/meal/${meal.idMeal}`}>
+        <Link to={`/meal/${meal.id}`}>
           View Recipe
         </Link>
-
       </div>
-
     </article>
   );
 }
+
 export default MealCard;

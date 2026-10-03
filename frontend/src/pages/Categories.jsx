@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getCategories } from "../services/mealApi";
+import { getCategories } from "../services/mealApi.js";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -10,10 +10,18 @@ export default function Categories() {
   useEffect(() => {
     async function loadCategories() {
       try {
+        setLoading(true);
+        setError("");
+
         const data = await getCategories();
-        setCategories(data);
+
+        setCategories(data.categories || []);
       } catch (error) {
-        setError("Unable to load categories.");
+        console.error("Failed to load categories:", error);
+
+        setError(
+          error.message || "Unable to load categories."
+        );
       } finally {
         setLoading(false);
       }
@@ -23,37 +31,49 @@ export default function Categories() {
   }, []);
 
   if (loading) {
-    return <p>Loading categories...</p>;
+    return (
+      <main>
+        <h1>Meal Categories</h1>
+        <p>Loading categories...</p>
+      </main>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <main>
+        <h1>Meal Categories</h1>
+        <p>{error}</p>
+      </main>
+    );
   }
 
   return (
     <main>
       <h1>Meal Categories</h1>
 
-      <div className="category-grid">
+      {categories.length === 0 ? (
+        <p>No categories found.</p>
+      ) : (
+        <div className="category-grid">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              to={`/categories/${encodeURIComponent(
+                category.name
+              )}`}
+              className="category-card"
+            >
+              <img
+                src={category.thumbnail}
+                alt={category.name}
+              />
 
-        {categories.map((category) => (
-          <Link
-            key={category.idCategory}
-            to={`/categories/${category.strCategory}`}
-            className="category-card"
-          >
-
-            <img
-              src={category.strCategoryThumb}
-              alt={category.strCategory}
-            />
-
-            <h2>{category.strCategory}</h2>
-
-          </Link>
-        ))}
-
-      </div>
+              <h2>{category.name}</h2>
+            </Link>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

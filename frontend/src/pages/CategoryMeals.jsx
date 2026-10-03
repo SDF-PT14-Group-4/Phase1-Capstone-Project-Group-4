@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MealGrid from "../components/meal/MealGrid";
-import { getMealsByCategory } from "../services/mealApi";
+import { getMealsByCategory } from "../services/mealApi.js";
 
 export default function CategoryMeals() {
   const { category } = useParams();
+
+  const decodedCategory = decodeURIComponent(category);
 
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,24 +17,30 @@ export default function CategoryMeals() {
     async function loadMeals() {
       try {
         setLoading(true);
+        setError("");
 
-        const data = await getMealsByCategory(category);
+        console.log("Loading category:", decodedCategory);
 
-        setMeals(data);
+        const data = await getMealsByCategory(decodedCategory);
+
+        console.log("API returned:", data);
+        console.log("Meals returned:", data.meals);
+
+        setMeals(data.meals);
       } catch (error) {
-        setError("Unable to load meals.");
+        console.error("Category meals error:", error);
+        setError(error.message || "Unable to load category meals.");
       } finally {
         setLoading(false);
       }
     }
 
     loadMeals();
-  }, [category]);
+  }, [decodedCategory]);
 
   return (
     <main>
-
-      <h1>{category} Meals</h1>
+      <h1>{decodedCategory} Meals</h1>
 
       {loading && <p>Loading meals...</p>}
 
@@ -41,7 +49,6 @@ export default function CategoryMeals() {
       {!loading && !error && (
         <MealGrid meals={meals} />
       )}
-
     </main>
   );
 }

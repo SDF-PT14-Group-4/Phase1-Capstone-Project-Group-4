@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -18,5 +19,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </PlannerProvider>
       </FavoritesProvider>
     </BrowserRouter>
+=======
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { FavoritesProvider } from "./context/FavoritesContext.jsx";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <FavoritesProvider>
+      <App />
+    </FavoritesProvider>
+>>>>>>> 2a406af (bug-fixes: categories and favorites)
   </React.StrictMode>
 );

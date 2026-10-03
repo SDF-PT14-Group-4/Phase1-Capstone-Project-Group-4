@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getCuisines } from "../services/mealApi";
+import { getCuisines } from "../services/mealApi.js";
 
 export default function Cuisines() {
   const [cuisines, setCuisines] = useState([]);

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MealGrid from "../components/meal/MealGrid";
-import { getMealsByCuisine } from "../services/mealApi";
+import { getMealsByCuisine } from "../services/mealApi.js";
 
-export default function CuisineMeals() {
+function CuisineMeals() {
   const { cuisine } = useParams();
 
   const decodedCuisine = decodeURIComponent(cuisine);
@@ -49,3 +49,4 @@ export default function CuisineMeals() {
     </main>
   );
 }
+export default CuisineMeals;
