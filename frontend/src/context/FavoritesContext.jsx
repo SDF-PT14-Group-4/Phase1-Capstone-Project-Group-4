@@ -10,9 +10,12 @@ const FavoritesContext = createContext(undefined);
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState(() => {
     try {
-      const saved = localStorage.getItem("favorites");
+      const savedFavorites =
+        localStorage.getItem("favorites");
 
-      return saved ? JSON.parse(saved) : [];
+      return savedFavorites
+        ? JSON.parse(savedFavorites)
+        : [];
     } catch (error) {
       console.error(
         "Unable to load favorites:",
@@ -30,44 +33,45 @@ export function FavoritesProvider({ children }) {
     );
   }, [favorites]);
 
-  function addFavorite(meal) {
+  const addFavorite = (meal) => {
     setFavorites((currentFavorites) => {
-      const exists = currentFavorites.some(
-        (favorite) =>
-          favorite.idMeal === meal.idMeal
-      );
+      const alreadyExists =
+        currentFavorites.some(
+          (favorite) =>
+            favorite.idMeal === meal.idMeal
+        );
 
-      if (exists) {
+      if (alreadyExists) {
         return currentFavorites;
       }
 
       return [...currentFavorites, meal];
     });
-  }
+  };
 
-  function removeFavorite(mealId) {
+  const removeFavorite = (mealId) => {
     setFavorites((currentFavorites) =>
       currentFavorites.filter(
         (favorite) =>
           favorite.idMeal !== mealId
       )
     );
-  }
+  };
 
-  function isFavorite(mealId) {
+  const isFavorite = (mealId) => {
     return favorites.some(
       (favorite) =>
         favorite.idMeal === mealId
     );
-  }
+  };
 
-  function toggleFavorite(meal) {
+  const toggleFavorite = (meal) => {
     if (isFavorite(meal.idMeal)) {
       removeFavorite(meal.idMeal);
     } else {
       addFavorite(meal);
     }
-  }
+  };
 
   return (
     <FavoritesContext.Provider
