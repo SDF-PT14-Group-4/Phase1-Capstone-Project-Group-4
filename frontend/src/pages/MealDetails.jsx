@@ -1,71 +1,54 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import{useEffect, useState} from "react";
+import { Link,useParams } from "react-router-dom";
 
 function MealDetails() {
   const { id } = useParams();
-  const mealId = id ?? "Not provided";
 
   const [meal, setMeal] = useState(null);
-  const [loading, setLoading] = useState(Boolean(id));
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  const [price, setPrice] = useState("");
+  const [message, setMessage] = useState("");
+  
   useEffect(() => {
     async function fetchMealDetails() {
-      try {
+      try{
         setLoading(true);
-        setError("");
-
+        setError('');
         const response = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch meal details.");
+          throw new Error('Failed to fetch meal details.');
         }
 
         const data = await response.json();
-
+ 
         if (!data.meals || data.meals.length === 0) {
-          setError("Meal not found.");
+          setError('Meal not found.');
           setMeal(null);
           return;
         }
 
         setMeal(data.meals[0]);
+
       } catch (err) {
-        setError("Unable to fetch meal details right now.");
+        setError('Unable to fetch meal details right now.');
         setMeal(null);
       } finally {
         setLoading(false);
       }
     }
-
+    
     if (id) {
       fetchMealDetails();
-    } else {
-      setLoading(false);
-      setMeal(null);
-      setError("");
     }
   }, [id]);
 
-  if (!id) {
-    return (
-      <main>
-        <h1>Meal Details</h1>
-        <p>Meal ID: {mealId}</p>
-      </main>
-    );
-  }
-
   if (loading) {
-    return (
-      <main>
-        <h1>Meal Details</h1>
-        <p>Meal ID: {mealId}</p>
-        <p>Loading meal details...</p>
-      </main>
-    );
+    return <p>Loading meal details...</p>;
   }
 
   if (error) {
@@ -80,21 +63,72 @@ function MealDetails() {
 
   const ingredients = [];
   for (let i = 1; i <= 20; i++) {
-    const ingredient = meal?.[`strIngredient${i}`];
-    const measure = meal?.[`strMeasure${i}`];
-
+    const ingredient = meal[`strIngredient${i}`];
+    const measure = meal[`strMeasure${i}`];
     if (ingredient && ingredient.trim()) {
       ingredients.push(`${measure ? measure.trim() : ""} ${ingredient.trim()}`.trim());
     }
   }
 
-  return (
+    const addToBasket = () => {
+    if (!price || Number(price) <= 0) {
+      setMessage("Please enter a valid price.");
+      return;
+    }
+
+    const savedBasket = JSON.parse(
+      localStorage.getItem("mealBasket") || "[]"
+    );
+
+    const existingMeal = savedBasket.find(
+      (item) => item.id === meal.idMeal
+    );
+
+    let updatedBasket;
+
+    if (existingMeal) {
+      updatedBasket = savedBasket.map((item) =>
+        item.id === meal.idMeal
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+              price: Number(price),
+            }
+          : item
+      );
+    } else {
+      updatedBasket = [
+        ...savedBasket,
+        {
+          id: meal.idMeal,
+          name: meal.strMeal,
+          image: meal.strMealThumb,
+          price: Number(price),
+          quantity: 1,
+        },
+      ];
+    }
+
+    localStorage.setItem(
+      "mealBasket",
+      JSON.stringify(updatedBasket)
+    );
+
+    setMessage(`${meal.strMeal} added to basket.`);
+  };
+
+
+    return (
     <main>
       <Link to="/search">← Back to Search</Link>
 
       <h1>{meal.strMeal}</h1>
 
-      <img src={meal.strMealThumb} alt={meal.strMeal} width="400" />
+      <img
+        src={meal.strMealThumb}
+        alt={meal.strMeal}
+        width="400"
+      />
 
       <h2>Meal Information</h2>
 
@@ -123,10 +157,36 @@ function MealDetails() {
       <h2>Instructions</h2>
 
       <p>{meal.strInstructions}</p>
+      
+      <h2>Add to Basket</h2>
+
+      <label>
+        Price (Ksh):{" "}
+        <input
+          type="number"
+          min="1"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Enter price"
+        />
+      </label>
+
+      <br />
+      <br />
+
+      <button onClick={addToBasket}>
+        Add to Basket
+      </button>
+
+      {message && <p>{message}</p>}
 
       {meal.strYoutube && (
         <p>
-          <a href={meal.strYoutube} target="_blank" rel="noreferrer">
+          <a
+            href={meal.strYoutube}
+            target="_blank"
+            rel="noreferrer"
+          >
             Watch preparation video
           </a>
         </p>
