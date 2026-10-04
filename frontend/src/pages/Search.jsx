@@ -40,7 +40,7 @@ function Search() {
         } else {
           setMeals(results);
         }
-      } catch (err) {
+      } catch {
         setError('Unable to search meals right now.');
         setMeals([]);
       } finally {

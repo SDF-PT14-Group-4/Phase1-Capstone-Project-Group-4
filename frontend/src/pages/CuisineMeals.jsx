@@ -48,23 +48,23 @@ export default function CuisineMeals() {
 
     if (decodedCuisine) {
       loadMeals();
-    } else {
-      setError("No cuisine was selected.");
-      setLoading(false);
     }
   }, [decodedCuisine]);
+
+  const selectionError = decodedCuisine ? "" : "No cuisine was selected.";
+  const displayedError = error || selectionError;
 
   return (
     <main>
       <h1>{decodedCuisine} Cuisine</h1>
 
-      {loading && (
+      {loading && decodedCuisine && (
         <p>Loading {decodedCuisine} meals...</p>
       )}
 
-      {error && <p>{error}</p>}
+      {displayedError && <p>{displayedError}</p>}
 
-      {!loading && !error && (
+      {!loading && !displayedError && (
         <MealGrid meals={meals} />
       )}
     </main>

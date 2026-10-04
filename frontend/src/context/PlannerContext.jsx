@@ -1,11 +1,9 @@
-import { createContext, useContext, useMemo } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { STORAGE_KEYS } from "../utils/storage";
+import { PlannerContext } from "./plannerContext.js";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const emptyPlan = Object.fromEntries(DAYS.map((day) => [day, null]));
-const PlannerContext = createContext(null);
-
 export function PlannerProvider({ children }) {
   const [plan, setPlan] = useLocalStorage(STORAGE_KEYS.planner, emptyPlan);
 
@@ -23,16 +21,7 @@ export function PlannerProvider({ children }) {
     setPlan(emptyPlan);
   }
 
-  const value = useMemo(
-    () => ({ days: DAYS, plan, assignMeal, removeMeal, clearPlan }),
-    [plan]
-  );
+  const value = { days: DAYS, plan, assignMeal, removeMeal, clearPlan };
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
-}
-
-export function usePlanner() {
-  const context = useContext(PlannerContext);
-  if (!context) throw new Error("usePlanner must be used inside PlannerProvider");
-  return context;
 }
