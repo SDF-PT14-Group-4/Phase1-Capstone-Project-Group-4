@@ -1,16 +1,28 @@
-# React + Vite
+# GlobalTaste Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the React + Vite frontend for the GlobalTaste project.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+## Project scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run dev        # runs the app in development mode
+npm run build      # creates the production build
+npm run preview    # previews the built app locally
+npm run lint       # runs the ESLint checks
+npm run test       # runs the Vitest test suite
+npm run test:coverage # runs tests and reports/enforces coverage
+npm run test:watch # runs tests in watch mode
+```
 
-## Expanding the ESLint configuration
+Coverage reports are written to `coverage/` (HTML and LCOV) and are excluded from version control. The current minimums are 45% statements, 60% branches, 50% functions, and 45% lines.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Repository
+
+Repository: `SDF-PT14-Group-4/Phase1-Capstone-Project-Group-4`
