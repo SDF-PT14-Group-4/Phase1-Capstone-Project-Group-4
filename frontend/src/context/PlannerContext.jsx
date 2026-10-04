@@ -11,12 +11,6 @@ const initialPlanner = {
   sunday: [],
 };
 
-import useLocalStorage from "../hooks/useLocalStorage";
-import { STORAGE_KEYS } from "../utils/storage";
-import { PlannerContext } from "./plannerContext.js";
-
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const emptyPlan = Object.fromEntries(DAYS.map((day) => [day, null]));
 export function PlannerProvider({ children }) {
   const [planner, setPlanner] = useState(() => {
     const savedPlanner = localStorage.getItem("weeklyPlanner");
@@ -29,21 +23,21 @@ export function PlannerProvider({ children }) {
   }, [planner]);
 
   function addMeal(day, meal) {
-  setPlanner((currentPlanner) => {
-    const alreadyPlanned = currentPlanner[day].some(
-      (plannedMeal) => plannedMeal.idMeal === meal.idMeal
-    );
+    setPlanner((currentPlanner) => {
+      const alreadyPlanned = currentPlanner[day].some(
+        (plannedMeal) => plannedMeal.idMeal === meal.idMeal
+      );
 
-    if (alreadyPlanned) {
-      return currentPlanner;
-    }
+      if (alreadyPlanned) {
+        return currentPlanner;
+      }
 
-    return {
-      ...currentPlanner,
-      [day]: [...currentPlanner[day], meal],
-    };
-  });
-}
+      return {
+        ...currentPlanner,
+        [day]: [...currentPlanner[day], meal],
+      };
+    });
+  }
 
   function removeMeal(day, mealId) {
     setPlanner((currentPlanner) => ({
@@ -65,7 +59,4 @@ export function PlannerProvider({ children }) {
       {children}
     </PlannerContext.Provider>
   );
-  const value = { days: DAYS, plan, assignMeal, removeMeal, clearPlan };
-
-  return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
 }
