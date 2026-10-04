@@ -1,11 +1,8 @@
 import {
-  createContext,
-  useContext,
   useEffect,
   useState,
 } from "react";
-
-const FavoritesContext = createContext(undefined);
+import { FavoritesContext } from "./favoritesContext.js";
 
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState(() => {
@@ -86,8 +83,4 @@ export function FavoritesProvider({ children }) {
       {children}
     </FavoritesContext.Provider>
   );
-}
-
-export function useFavorites() {
-  return useContext(FavoritesContext);
 }

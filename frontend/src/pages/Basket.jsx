@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function Basket() {
-  const [basket, setBasket] = useState([]);
-
-  useEffect(() => {
-    const savedBasket = JSON.parse(
-      localStorage.getItem("mealBasket") || "[]"
-    );
-    setBasket(savedBasket);
-  }, []);
+  const [basket, setBasket] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("mealBasket") || "[]");
+    } catch {
+      return [];
+    }
+  });
 
   const removeFromBasket = (id) => {
     const updatedBasket = basket.filter((meal) => meal.id !== id);

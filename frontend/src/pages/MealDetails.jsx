@@ -10,7 +10,7 @@ function MealDetails() {
 
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
-  
+
   useEffect(() => {
     async function fetchMealDetails() {
       try{
@@ -34,7 +34,7 @@ function MealDetails() {
 
         setMeal(data.meals[0]);
 
-      } catch (err) {
+      } catch {
         setError('Unable to fetch meal details right now.');
         setMeal(null);
       } finally {
@@ -46,6 +46,16 @@ function MealDetails() {
       fetchMealDetails();
     }
   }, [id]);
+
+  if (!id) {
+    return (
+      <main>
+        <h1>Meal Details</h1>
+        <p>Meal ID not provided.</p>
+        <Link to="/search">Back to search</Link>
+      </main>
+    );
+  }
 
   if (loading) {
     return <p>Loading meal details...</p>;

@@ -94,6 +94,13 @@ The project includes unit tests for the meal service and UI layout. To run the t
 npm run test
 ```
 
+## CI/CD
+
+GitHub Actions runs the test suite, ESLint, and a production build for pull requests and pushes to `main`. Successful pushes to `main` also deploy the build to Netlify when deployment credentials are configured.
+
+To enable production deploys, add `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as an Actions secret in the GitHub repository settings. Without the site ID variable, CI still runs but the deploy step is skipped.
+
+
 ## Notes
 
 - The app fetches real meal data from TheMealDB.
