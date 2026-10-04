@@ -1,38 +1,62 @@
-import { createContext, useContext, useMemo } from "react";
-import useLocalStorage from "../hooks/useLocalStorage";
-import { STORAGE_KEYS } from "../utils/storage";
+import { useEffect, useState } from "react";
+import { PlannerContext } from "./plannerContext";
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const emptyPlan = Object.fromEntries(DAYS.map((day) => [day, null]));
-const PlannerContext = createContext(null);
+const initialPlanner = {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  sunday: [],
+};
 
 export function PlannerProvider({ children }) {
-  const [plan, setPlan] = useLocalStorage(STORAGE_KEYS.planner, emptyPlan);
+  const [planner, setPlanner] = useState(() => {
+    const savedPlanner = localStorage.getItem("weeklyPlanner");
 
-  function assignMeal(day, meal) {
-    if (!DAYS.includes(day) || !meal?.id) return;
-    setPlan((current) => ({ ...current, [day]: meal }));
-  }
+    return savedPlanner ? JSON.parse(savedPlanner) : initialPlanner;
+  });
 
-  function removeMeal(day) {
-    if (!DAYS.includes(day)) return;
-    setPlan((current) => ({ ...current, [day]: null }));
-  }
+  useEffect(() => {
+    localStorage.setItem("weeklyPlanner", JSON.stringify(planner));
+  }, [planner]);
 
-  function clearPlan() {
-    setPlan(emptyPlan);
-  }
+  function addMeal(day, meal) {
+  setPlanner((currentPlanner) => {
+    const alreadyPlanned = currentPlanner[day].some(
+      (plannedMeal) => plannedMeal.idMeal === meal.idMeal
+    );
 
-  const value = useMemo(
-    () => ({ days: DAYS, plan, assignMeal, removeMeal, clearPlan }),
-    [plan]
-  );
+    if (alreadyPlanned) {
+      return currentPlanner;
+    }
 
-  return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
+    return {
+      ...currentPlanner,
+      [day]: [...currentPlanner[day], meal],
+    };
+  });
 }
 
-export function usePlanner() {
-  const context = useContext(PlannerContext);
-  if (!context) throw new Error("usePlanner must be used inside PlannerProvider");
-  return context;
+  function removeMeal(day, mealId) {
+    setPlanner((currentPlanner) => ({
+      ...currentPlanner,
+      [day]: currentPlanner[day].filter(
+        (meal) => meal.idMeal !== mealId
+      ),
+    }));
+  }
+
+  return (
+    <PlannerContext.Provider
+      value={{
+        planner,
+        addMeal,
+        removeMeal,
+      }}
+    >
+      {children}
+    </PlannerContext.Provider>
+  );
 }
