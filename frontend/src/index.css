@@ -29,7 +29,105 @@
     font-size: 16px;
   }
 }
+/* Meal grid */
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
 
+/* Meal card */
+.meal-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* Image container */
+.meal-card-image {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+/* Meal image */
+.meal-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Favorite button */
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.92);
+  color: #555;
+
+  font-size: 20px;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  z-index: 10;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.favorite-button:hover {
+  transform: scale(1.08);
+}
+
+.favorite-button.active {
+  color: #e63946;
+}
+
+/* Card content */
+.meal-card-content {
+  padding: 14px;
+}
+
+.meal-card-content h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.meal-card-content p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.meal-card-content a {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;

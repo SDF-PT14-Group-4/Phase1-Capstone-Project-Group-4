@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { searchMeals, getMealById } from './mealService';
+import { searchMeals, getMealById } from '../services/mealService';
 
 describe('mealService', () => {
   beforeEach(() => {
