@@ -1,3 +1,16 @@
+import { useEffect, useState } from "react";
+import { PlannerContext } from "./plannerContext";
+
+const initialPlanner = {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  sunday: [],
+};
+
 import useLocalStorage from "../hooks/useLocalStorage";
 import { STORAGE_KEYS } from "../utils/storage";
 import { PlannerContext } from "./plannerContext.js";
@@ -5,22 +18,53 @@ import { PlannerContext } from "./plannerContext.js";
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const emptyPlan = Object.fromEntries(DAYS.map((day) => [day, null]));
 export function PlannerProvider({ children }) {
-  const [plan, setPlan] = useLocalStorage(STORAGE_KEYS.planner, emptyPlan);
+  const [planner, setPlanner] = useState(() => {
+    const savedPlanner = localStorage.getItem("weeklyPlanner");
 
-  function assignMeal(day, meal) {
-    if (!DAYS.includes(day) || !meal?.id) return;
-    setPlan((current) => ({ ...current, [day]: meal }));
+    return savedPlanner ? JSON.parse(savedPlanner) : initialPlanner;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("weeklyPlanner", JSON.stringify(planner));
+  }, [planner]);
+
+  function addMeal(day, meal) {
+  setPlanner((currentPlanner) => {
+    const alreadyPlanned = currentPlanner[day].some(
+      (plannedMeal) => plannedMeal.idMeal === meal.idMeal
+    );
+
+    if (alreadyPlanned) {
+      return currentPlanner;
+    }
+
+    return {
+      ...currentPlanner,
+      [day]: [...currentPlanner[day], meal],
+    };
+  });
+}
+
+  function removeMeal(day, mealId) {
+    setPlanner((currentPlanner) => ({
+      ...currentPlanner,
+      [day]: currentPlanner[day].filter(
+        (meal) => meal.idMeal !== mealId
+      ),
+    }));
   }
 
-  function removeMeal(day) {
-    if (!DAYS.includes(day)) return;
-    setPlan((current) => ({ ...current, [day]: null }));
-  }
-
-  function clearPlan() {
-    setPlan(emptyPlan);
-  }
-
+  return (
+    <PlannerContext.Provider
+      value={{
+        planner,
+        addMeal,
+        removeMeal,
+      }}
+    >
+      {children}
+    </PlannerContext.Provider>
+  );
   const value = { days: DAYS, plan, assignMeal, removeMeal, clearPlan };
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
