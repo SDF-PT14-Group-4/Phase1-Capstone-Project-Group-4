@@ -1,22 +1,15 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import { FavoritesProvider } from "./context/FavoritesContext";
-import { PlannerProvider } from "./context/PlannerContext";
-import { BasketProvider } from "./context/BasketContext";
-import "./index.css";
+import { FavoritesProvider } from "./context/FavoritesContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <FavoritesProvider>
-        <PlannerProvider>
-          <BasketProvider>
-            <App />
-          </BasketProvider>
-        </PlannerProvider>
-      </FavoritesProvider>
-    </BrowserRouter>
+    <FavoritesProvider>
+      <App />
+    </FavoritesProvider>
   </React.StrictMode>
 );

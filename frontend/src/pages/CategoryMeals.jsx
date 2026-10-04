@@ -1,43 +1,72 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import PageHeader from "../components/common/PageHeader";
-import LoadingState from "../components/common/LoadingState";
-import ErrorState from "../components/common/ErrorState";
-import EmptyState from "../components/common/EmptyState";
-import MealGrid from "../components/meal/MealGrid";
-import { getMealsByCategory } from "../services/mealDbApi";
+import { useParams } from "react-router-dom";
 
-function CategoryMeals() {
+import MealGrid from "../components/meal/MealGrid";
+
+const BASE_URL =
+  "https://www.themealdb.com/api/json/v1/1";
+
+export default function CategoryMeals() {
   const { category } = useParams();
+
+  const decodedCategory = decodeURIComponent(
+    category || ""
+  );
+
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getMealsByCategory(category);
-      setMeals(data.meals);
-    } catch (err) {
-      setError(err);
-      setMeals([]);
-    } finally {
+  useEffect(() => {
+    async function loadMeals() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${BASE_URL}/filter.php?c=${encodeURIComponent(
+            decodedCategory
+          )}`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load category meals."
+          );
+        }
+
+        const data = await response.json();
+
+        setMeals(data.meals || []);
+      } catch (error) {
+        console.error("Category meals error:", error);
+        setError("Unable to load category meals.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (decodedCategory) {
+      loadMeals();
+    } else {
+      setError("No category was selected.");
       setLoading(false);
     }
-  }
-
-  useEffect(() => { load(); }, [category]);
+  }, [decodedCategory]);
 
   return (
-    <>
-      <Link className="back-link" to="/categories">← All categories</Link>
-      <PageHeader eyebrow="CATEGORY" title={category} description={`Meals in the ${category} category.`} />
-      {loading && <LoadingState />}
-      {error && <ErrorState message={error.message} onRetry={load} />}
-      {!loading && !error && meals.length > 0 && <MealGrid meals={meals} />}
-      {!loading && !error && !meals.length && <EmptyState title="No meals found" />}
-    </>
+    <main>
+      <h1>{decodedCategory} Meals</h1>
+
+      {loading && (
+        <p>Loading {decodedCategory} meals...</p>
+      )}
+
+      {error && <p>{error}</p>}
+
+      {!loading && !error && (
+        <MealGrid meals={meals} />
+      )}
+    </main>
   );
 }
-export default CategoryMeals;
