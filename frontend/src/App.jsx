@@ -9,7 +9,7 @@ import Favorites from "./pages/Favorites";
 import Planner from "./pages/Planner";
 import Basket from "./pages/Basket";
 import Surprise from "./pages/Surprise";
-import { PlannerProvider } from "./context/PlannerContext";
+
 
 function App() {
   return (
