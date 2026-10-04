@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { FavoritesProvider } from "../context/FavoritesContext";
+import { PlannerContext } from "../context/plannerContext.js";
 import { useFavorites } from "../hooks/useFavorites.js";
 
 const MEAL = {
@@ -19,7 +20,23 @@ function renderApp(path = "/") {
   window.history.replaceState({}, "", path);
   return render(
     <FavoritesProvider>
-      <App />
+      <PlannerContext.Provider
+        value={{
+          planner: {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          },
+          addMeal: vi.fn(),
+          removeMeal: vi.fn(),
+        }}
+      >
+        <App />
+      </PlannerContext.Provider>
     </FavoritesProvider>
   );
 }
