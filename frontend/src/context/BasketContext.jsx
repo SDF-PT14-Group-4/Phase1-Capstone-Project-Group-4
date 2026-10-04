@@ -1,4 +1,3 @@
-import { createContext, useContext, useMemo } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 
@@ -53,16 +52,7 @@ export function BasketProvider({ children }) {
 
   const total = items.reduce((sum, item) => sum + item.demoPrice * item.quantity, 0);
 
-  const value = useMemo(
-    () => ({ items, total, addToBasket, decrement, removeFromBasket, clearBasket }),
-    [items, total]
-  );
+  const value = { items, total, addToBasket, decrement, removeFromBasket, clearBasket };
 
   return <BasketContext.Provider value={value}>{children}</BasketContext.Provider>;
-}
-
-export function useBasket() {
-  const context = useContext(BasketContext);
-  if (!context) throw new Error("useBasket must be used inside BasketProvider");
-  return context;
 }

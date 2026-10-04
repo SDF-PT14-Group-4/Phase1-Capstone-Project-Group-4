@@ -1,10 +1,36 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import MealDetails from '../MealDetails';
 
 describe('MealDetails', () => {
-  it('renders the meal id from the route params', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('renders the meal returned for the route id', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          meals: [
+            {
+              idMeal: '52772',
+              strMeal: 'Teriyaki Chicken Casserole',
+              strMealThumb: 'https://example.com/meal.jpg',
+              strCategory: 'Chicken',
+              strArea: 'Japanese',
+              strInstructions: 'Bake until ready.',
+              strIngredient1: 'Chicken',
+              strMeasure1: '1 lb',
+            },
+          ],
+        }),
+      })
+    );
+
     render(
       <MemoryRouter initialEntries={['/meal/52772']}>
         <Routes>
@@ -13,11 +39,18 @@ describe('MealDetails', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /meal details/i })).toBeInTheDocument();
-    expect(screen.getByText(/meal id: 52772/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /teriyaki chicken casserole/i })
+    ).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith(
+      'https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772'
+    );
   });
 
   it('handles a missing meal id gracefully', () => {
+    const mockFetch = vi.fn();
+    vi.stubGlobal('fetch', mockFetch);
+
     render(
       <MemoryRouter initialEntries={['/meal']}>
         <Routes>
@@ -27,6 +60,7 @@ describe('MealDetails', () => {
     );
 
     expect(screen.getByRole('heading', { name: /meal details/i })).toBeInTheDocument();
-    expect(screen.getByText(/meal id: not provided/i)).toBeInTheDocument();
+    expect(screen.getByText(/meal id not provided/i)).toBeInTheDocument();
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });

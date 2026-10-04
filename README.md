@@ -1,5 +1,9 @@
 # GlobalTaste
 
+## Live Demo
+
+[View the live application](https://phase1-capstone-project-group-4.netlify.app)
+
 GlobalTaste is a React + Vite meal discovery application that helps users explore meals, search by keyword, view ingredients and instructions, save favorites, and plan meals from around the world.
 
 ## Project overview
@@ -89,6 +93,13 @@ The project includes unit tests for the meal service and UI layout. To run the t
 ```bash
 npm run test
 ```
+
+## CI/CD
+
+GitHub Actions runs the test suite, ESLint, and a production build for pull requests and pushes to `main`. Successful pushes to `main` also deploy the build to Netlify when deployment credentials are configured.
+
+To enable production deploys, add `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as an Actions secret in the GitHub repository settings. Without the site ID variable, CI still runs but the deploy step is skipped.
+
 
 ## Notes
 

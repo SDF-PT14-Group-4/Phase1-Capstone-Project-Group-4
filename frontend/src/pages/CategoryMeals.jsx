@@ -48,23 +48,23 @@ export default function CategoryMeals() {
 
     if (decodedCategory) {
       loadMeals();
-    } else {
-      setError("No category was selected.");
-      setLoading(false);
     }
   }, [decodedCategory]);
+
+  const selectionError = decodedCategory ? "" : "No category was selected.";
+  const displayedError = error || selectionError;
 
   return (
     <main>
       <h1>{decodedCategory} Meals</h1>
 
-      {loading && (
+      {loading && decodedCategory && (
         <p>Loading {decodedCategory} meals...</p>
       )}
 
-      {error && <p>{error}</p>}
+      {displayedError && <p>{displayedError}</p>}
 
-      {!loading && !error && (
+      {!loading && !displayedError && (
         <MealGrid meals={meals} />
       )}
     </main>
