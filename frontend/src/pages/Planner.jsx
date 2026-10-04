@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
+import "./Planner.css";
 
 function Planner() {
   const { planner, addMeal, removeMeal } = usePlanner();
@@ -44,90 +45,154 @@ function Planner() {
     addMeal(selectedDay, meal);
   }
 
+  function formatDay(day) {
+    return day.charAt(0).toUpperCase() + day.slice(1);
+  }
+
   return (
-    <main>
-      <h1>Weekly Meal Planner</h1>
-      <p>Search for meals and add them to your weekly plan.</p>
+    <main className="planner-page">
+      <header className="planner-header">
+        <h1>Weekly Meal Planner</h1>
+        <p>Search for meals and organize your meals for the week.</p>
+      </header>
 
-      <form onSubmit={handleSearch}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for a meal"
-        />
+      <section className="planner-search">
+        <form onSubmit={handleSearch} className="planner-search-form">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search for a meal"
+            aria-label="Search for a meal"
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Searching..." : "Search"}
-        </button>
-      </form>
+          <button type="submit" disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </form>
 
-      {error && <p role="alert">{error}</p>}
+        {error && (
+          <p className="planner-error" role="alert">
+            {error}
+          </p>
+        )}
+      </section>
 
-      <label>
-        Plan for:{" "}
+      <section className="planner-day-selector">
+        <label htmlFor="planner-day">
+          Plan meal for:
+        </label>
+
         <select
+          id="planner-day"
           value={selectedDay}
           onChange={(e) => setSelectedDay(e.target.value)}
         >
           {days.map((day) => (
             <option key={day} value={day}>
-              {day.charAt(0).toUpperCase() + day.slice(1)}
+              {formatDay(day)}
             </option>
           ))}
         </select>
-      </label>
-
-      <section>
-        <h2>Search Results</h2>
-
-        {meals.length === 0 && !error && <p>No meals searched yet.</p>}
-
-        <ul>
-          {meals.map((meal) => (
-            <li key={meal.idMeal}>
-              <span>{meal.strMeal}</span>
-
-              <button
-                type="button"
-                onClick={() => handleAddMeal(meal)}
-              >
-                Add to {selectedDay}
-              </button>
-            </li>
-          ))}
-        </ul>
       </section>
 
-      <section>
-        <h2>Weekly Plan</h2>
+      <section className="planner-section">
+        <div className="planner-section-header">
+          <h2>Search Results</h2>
+          {meals.length > 0 && <span>{meals.length} meals found</span>}
+        </div>
 
-        {days.map((day) => (
-          <div key={day}>
-            <h3>
-              {day.charAt(0).toUpperCase() + day.slice(1)}
-            </h3>
+        {meals.length === 0 && !error && (
+          <p className="planner-empty">
+            Search for a meal to see results here.
+          </p>
+        )}
 
-            {planner[day].length === 0 ? (
-              <p>No meals planned.</p>
-            ) : (
-              <ul>
-                {planner[day].map((meal) => (
-                  <li key={meal.idMeal}>
-                    {meal.strMeal}
+        {meals.length > 0 && (
+          <div className="planner-meal-grid">
+            {meals.map((meal) => (
+              <article className="planner-meal-card" key={meal.idMeal}>
+                <img
+                  src={meal.strMealThumb}
+                  alt={meal.strMeal}
+                  className="planner-meal-image"
+                />
 
-                    <button
-                      type="button"
-                      onClick={() => removeMeal(day, meal.idMeal)}
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                <div className="planner-meal-content">
+                  <h3>{meal.strMeal}</h3>
+
+                  {meal.strCategory && (
+                    <p>{meal.strCategory}</p>
+                  )}
+
+                  {meal.strArea && (
+                    <p>{meal.strArea}</p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddMeal(meal)}
+                  >
+                    Add to {formatDay(selectedDay)}
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
-        ))}
+        )}
+      </section>
+
+      <section className="planner-section">
+        <div className="planner-section-header">
+          <h2>Your Weekly Plan</h2>
+        </div>
+
+        <div className="weekly-plan">
+          {days.map((day) => (
+            <section className="day-plan" key={day}>
+              <div className="day-plan-header">
+                <h3>{formatDay(day)}</h3>
+                <span>
+                  {planner[day].length}{" "}
+                  {planner[day].length === 1 ? "meal" : "meals"}
+                </span>
+              </div>
+
+              {planner[day].length === 0 ? (
+                <p className="planner-empty">
+                  No meals planned.
+                </p>
+              ) : (
+                <div className="planned-meals">
+                  {planner[day].map((meal) => (
+                    <article
+                      className="planned-meal"
+                      key={meal.idMeal}
+                    >
+                      <img
+                        src={meal.strMealThumb}
+                        alt={meal.strMeal}
+                      />
+
+                      <div className="planned-meal-info">
+                        <h4>{meal.strMeal}</h4>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeMeal(day, meal.idMeal)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
       </section>
     </main>
   );
