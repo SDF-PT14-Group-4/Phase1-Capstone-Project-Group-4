@@ -37,7 +37,15 @@ function MealCard({ meal }) {
         <h3>{meal.strMeal}</h3>
 
         {meal.strCategory && (
-          <p>{meal.strCategory}</p>
+          <p>
+            <Link
+              className="meal-category-link"
+              to={`/categories/${encodeURIComponent(meal.strCategory)}`}
+              aria-label={`Explore ${meal.strCategory} recipes`}
+            >
+              {meal.strCategory}
+            </Link>
+          </p>
         )}
 
         {meal.strArea && (
