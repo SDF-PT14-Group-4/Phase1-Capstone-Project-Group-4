@@ -24,6 +24,8 @@ This app provides a responsive single-page experience for browsing meals using t
 - React 19
 - Vite
 - React Router
+- Flask REST API
+- PostgreSQL
 - TheMealDB API
 - Vitest + Testing Library
 - ESLint
@@ -32,6 +34,12 @@ This app provides a responsive single-page experience for browsing meals using t
 
 ```bash
 Phase1-Capstone-Project-Group-4/
+├── backend/
+│   ├── app/
+│   ├── migrations/
+│   ├── tests/
+│   ├── requirements.txt
+│   └── README.md
 ├── README.md
 ├── TEST_CASES.md
 ├── TEST_MATRIX.csv
@@ -51,10 +59,12 @@ Phase1-Capstone-Project-Group-4/
 
 ## Getting started
 
-From the workspace root, open the actual app directory:
+### Frontend
+
+From the repository root, change into the frontend app directory:
 
 ```bash
-cd Phase1-Capstone-Project-Group-4/frontend
+cd frontend
 ```
 
 Install dependencies:
@@ -74,6 +84,12 @@ Then open the local URL shown in the terminal, typically:
 ```text
 http://localhost:5173/
 ```
+
+### Flask API
+
+The backend exposes meal discovery endpoints and JWT-protected account, favorites, weekly planner, and basket endpoints. Its setup, PostgreSQL configuration, API contract, and tests are documented in [backend/README.md](./backend/README.md).
+
+The current React UI still calls TheMealDB directly and keeps user selections in browser storage; connecting it to the new authenticated API is a separate frontend integration step.
 
 ## Available scripts
 
