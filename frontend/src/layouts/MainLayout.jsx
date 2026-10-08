@@ -14,6 +14,7 @@ function MainLayout() {
             <NavLink to="/">Home</NavLink>
             <NavLink to="/search">Search</NavLink>
             <NavLink to="/categories">Categories</NavLink>
+            <NavLink to="/cuisines">Cuisines</NavLink>
             <NavLink to="/favorites">Favorites</NavLink>
             <NavLink to="/planner">Planner</NavLink>
             <NavLink to="/basket">Basket</NavLink>

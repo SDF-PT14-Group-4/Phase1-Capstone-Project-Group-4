@@ -15,6 +15,7 @@ describe('MainLayout', () => {
     expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /search/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /categories/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /cuisines/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /favorites/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /planner/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /basket/i })).toBeInTheDocument();

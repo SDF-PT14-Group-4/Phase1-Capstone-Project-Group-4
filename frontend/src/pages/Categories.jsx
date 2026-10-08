@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import "./Discovery.css";
 
 const BASE_URL =
   "https://www.themealdb.com/api/json/v1/1";
@@ -36,8 +37,11 @@ export default function Categories() {
 
   if (loading) {
     return (
-      <main>
-        <h1>Meal Categories</h1>
+      <main className="discovery-page listing-page">
+        <header className="discovery-header">
+          <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+          <h1>Meal categories</h1>
+        </header>
         <p>Loading categories...</p>
       </main>
     );
@@ -45,16 +49,23 @@ export default function Categories() {
 
   if (error) {
     return (
-      <main>
-        <h1>Meal Categories</h1>
+      <main className="discovery-page listing-page">
+        <header className="discovery-header">
+          <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+          <h1>Meal categories</h1>
+        </header>
         <p>{error}</p>
       </main>
     );
   }
 
   return (
-    <main>
-      <h1>Meal Categories</h1>
+    <main className="discovery-page listing-page">
+      <header className="discovery-header">
+        <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+        <h1>Meal categories</h1>
+        <p>From quick breakfasts to special-occasion desserts, find recipes by what you’re craving.</p>
+      </header>
 
       <div className="category-grid">
         {categories.map((category) => (
@@ -70,7 +81,11 @@ export default function Categories() {
               alt={category.strCategory}
             />
 
-            <h2>{category.strCategory}</h2>
+            <div className="category-card-content">
+              <h2>{category.strCategory}</h2>
+              <p>{category.strCategoryDescription}</p>
+              <span>Explore recipes <span aria-hidden="true">→</span></span>
+            </div>
           </Link>
         ))}
       </div>

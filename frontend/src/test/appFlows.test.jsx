@@ -77,7 +77,7 @@ describe("application user flows", () => {
     renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /welcome to globaltaste/i })
+      screen.getByRole("heading", { name: /a world of flavor is waiting/i })
     ).toBeInTheDocument();
 
     for (const label of [
@@ -115,7 +115,7 @@ describe("application user flows", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "Home" }));
     expect(
-      await screen.findByRole("heading", { name: /welcome to globaltaste/i })
+      await screen.findByRole("heading", { name: /a world of flavor is waiting/i })
     ).toBeInTheDocument();
   });
 
@@ -127,15 +127,19 @@ describe("application user flows", () => {
     renderApp();
 
     fireEvent.click(screen.getByRole("link", { name: "Search" }));
-    const input = screen.getByPlaceholderText(/search for a meal/i);
+    const input = screen.getByRole("searchbox", { name: "Search meals" });
     fireEvent.change(input, { target: { value: "chicken" } });
     expect(input).toHaveValue("chicken");
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
-    const mealLink = await screen.findByRole("link", {
-      name: MEAL.strMeal,
-    });
-    fireEvent.click(mealLink);
+    await screen.findByRole("heading", { name: MEAL.strMeal });
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `Add ${MEAL.strMeal} to favorites`,
+      })
+    );
+    expect(JSON.parse(localStorage.getItem("favorites"))).toHaveLength(1);
+    fireEvent.click(screen.getByRole("link", { name: "View Recipe" }));
 
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
@@ -178,15 +182,15 @@ describe("application user flows", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
     expect(
-      screen.getByRole("alert", { name: "" })
-    ).toHaveTextContent(/please enter the meal/i);
+      screen.getByRole("status")
+    ).toHaveTextContent(/enter a meal name to start searching/i);
 
-    fireEvent.change(screen.getByPlaceholderText(/search for a meal/i), {
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search meals" }), {
       target: { value: "no-such-meal" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /no meals found for your search/i
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /no meals found\. try another name/i
     );
   });
 

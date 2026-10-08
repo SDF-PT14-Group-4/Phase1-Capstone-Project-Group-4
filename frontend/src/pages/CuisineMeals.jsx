@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import MealGrid from "../components/meal/MealGrid";
+import "./Discovery.css";
 
 const BASE_URL =
   "https://www.themealdb.com/api/json/v1/1";
@@ -55,7 +56,7 @@ export default function CuisineMeals() {
   const displayedError = error || selectionError;
 
   return (
-    <main>
+    <main className="discovery-page listing-page">
       <h1>{decodedCuisine} Cuisine</h1>
 
       {loading && decodedCuisine && (

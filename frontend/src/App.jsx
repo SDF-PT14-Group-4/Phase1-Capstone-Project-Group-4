@@ -5,6 +5,8 @@ import Search from "./pages/Search";
 import MealDetails from "./pages/MealDetails";
 import Categories from "./pages/Categories";
 import CategoryMeals from "./pages/CategoryMeals";
+import Cuisines from "./pages/Cuisine";
+import CuisineMeals from "./pages/CuisineMeals";
 import Favorites from "./pages/Favorites";
 import Planner from "./pages/Planner";
 import Basket from "./pages/Basket";
@@ -23,6 +25,8 @@ function App() {
           <Route path="/meal/:id" element={<MealDetails />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:category" element={<CategoryMeals />}/>
+          <Route path="/cuisines" element={<Cuisines />} />
+          <Route path="/cuisines/:cuisine" element={<CuisineMeals />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/basket" element={<Basket />} />
