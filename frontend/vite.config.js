@@ -11,5 +11,17 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/test/setup.js',
     css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/test/**', 'src/**/__tests__/**', 'src/main.jsx'],
+      thresholds: {
+        statements: 45,
+        branches: 60,
+        functions: 50,
+        lines: 45,
+      },
+    },
   },
 })

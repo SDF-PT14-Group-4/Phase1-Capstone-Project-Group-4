@@ -1,7 +1,6 @@
+import { BasketContext } from "./basketContext.js";
+import { STORAGE_KEYS } from "../utils/storage";
 import useLocalStorage from "../hooks/useLocalStorage";
-
-
-const BasketContext = createContext(null);
 
 // Prototype pricing only. TheMealDB is a recipe source, not a reliable restaurant
 // catalogue. Prices are explicitly labelled as demo prices.
