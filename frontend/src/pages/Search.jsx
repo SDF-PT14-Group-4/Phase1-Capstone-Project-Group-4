@@ -35,6 +35,31 @@ function Search() {
 
       if (results.length === 0) {
         setError("No meals found for your search.");
+    setError('');
+
+
+       try {
+        const response = await fetch(
+          `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(
+            query
+          )}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch meals.');
+        }
+
+        const data = await response.json();
+        const results = data.meals || [];
+
+        if (results.length === 0) {
+          setError('No meals found for your search.');
+          setMeals([]);
+        } else {
+          setMeals(results);
+        }
+      } catch {
+        setError('Unable to search meals right now.');
         setMeals([]);
       } else {
         setMeals(results);

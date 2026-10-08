@@ -10,6 +10,13 @@ const BasketContext = createContext(null);
 const STORAGE_KEYS = {
   basket: "mealBasket",
 };
+import { BasketContext } from "./basketContext.js";
+import { STORAGE_KEYS } from "../utils/storage";
+import useLocalStorage from "../hooks/useLocalStorage";
+
+// Prototype pricing only. TheMealDB is a recipe source, not a reliable restaurant
+// catalogue. Prices are explicitly labelled as demo prices.
+const DEMO_PRICE = 10;
 
 export function BasketProvider({ children }) {
   const [items, setItems] = useLocalStorage(
@@ -99,6 +106,7 @@ export function BasketProvider({ children }) {
     }),
     [items, total]
   );
+  const value = { items, total, addToBasket, decrement, removeFromBasket, clearBasket };
 
   return (
     <BasketContext.Provider value={value}>

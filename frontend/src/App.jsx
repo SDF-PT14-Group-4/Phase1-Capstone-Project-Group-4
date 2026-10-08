@@ -11,6 +11,7 @@ import Basket from "./pages/Basket";
 import Surprise from "./pages/Surprise";
 import Cuisines from "./pages/Cuisines";
 import CuisineMeals from "./pages/CuisineMeals";
+import NotFound from "./pages/NotFound";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/planner" element={<Planner />} />
           <Route path="/basket" element={<Basket />} />
           <Route path="/surprise" element={<Surprise />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

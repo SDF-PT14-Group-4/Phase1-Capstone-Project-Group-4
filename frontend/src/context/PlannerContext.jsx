@@ -23,21 +23,21 @@ export function PlannerProvider({ children }) {
   }, [planner]);
 
   function addMeal(day, meal) {
-  setPlanner((currentPlanner) => {
-    const alreadyPlanned = currentPlanner[day].some(
-      (plannedMeal) => plannedMeal.idMeal === meal.idMeal
-    );
+    setPlanner((currentPlanner) => {
+      const alreadyPlanned = currentPlanner[day].some(
+        (plannedMeal) => plannedMeal.idMeal === meal.idMeal
+      );
 
-    if (alreadyPlanned) {
-      return currentPlanner;
-    }
+      if (alreadyPlanned) {
+        return currentPlanner;
+      }
 
-    return {
-      ...currentPlanner,
-      [day]: [...currentPlanner[day], meal],
-    };
-  });
-}
+      return {
+        ...currentPlanner,
+        [day]: [...currentPlanner[day], meal],
+      };
+    });
+  }
 
   function removeMeal(day, mealId) {
     setPlanner((currentPlanner) => ({

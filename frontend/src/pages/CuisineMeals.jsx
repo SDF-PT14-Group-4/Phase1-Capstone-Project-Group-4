@@ -53,7 +53,13 @@ export default function CuisineMeals() {
     }
 
     loadMeals();
+    if (decodedCuisine) {
+      loadMeals();
+    }
   }, [decodedCuisine]);
+
+  const selectionError = decodedCuisine ? "" : "No cuisine was selected.";
+  const displayedError = error || selectionError;
 
   return (
     <main className="cuisine-meals-page">
@@ -90,6 +96,15 @@ export default function CuisineMeals() {
           <MealGrid meals={meals} />
         )}
       </section>
+      {loading && decodedCuisine && (
+        <p>Loading {decodedCuisine} meals...</p>
+      )}
+
+      {displayedError && <p>{displayedError}</p>}
+
+      {!loading && !displayedError && (
+        <MealGrid meals={meals} />
+      )}
     </main>
   );
 }

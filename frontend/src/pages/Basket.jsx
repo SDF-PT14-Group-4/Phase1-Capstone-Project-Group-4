@@ -10,6 +10,39 @@ function Basket() {
     removeFromBasket,
     clearBasket,
   } = useBasket();
+import { useState } from "react";
+
+function Basket() {
+  const [basket, setBasket] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("mealBasket") || "[]");
+    } catch {
+      return [];
+    }
+  });
+
+  const removeFromBasket = (id) => {
+    const updatedBasket = basket.filter((meal) => meal.id !== id);
+
+    setBasket(updatedBasket);
+    localStorage.setItem("mealBasket", JSON.stringify(updatedBasket));
+  };
+
+  const updateQuantity = (id, quantity) => {
+    const updatedBasket = basket.map((meal) =>
+      meal.id === id
+        ? { ...meal, quantity: Math.max(1, quantity) }
+        : meal
+    );
+
+    setBasket(updatedBasket);
+    localStorage.setItem("mealBasket", JSON.stringify(updatedBasket));
+  };
+
+  const total = basket.reduce(
+    (sum, meal) => sum + meal.price * meal.quantity,
+    0
+  );
 
   return (
     <main className="basket-page">

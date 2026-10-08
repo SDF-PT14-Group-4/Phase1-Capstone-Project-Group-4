@@ -43,6 +43,9 @@ function MealDetails() {
         setError(
           "Unable to fetch meal details right now."
         );
+
+      } catch {
+        setError('Unable to fetch meal details right now.');
         setMeal(null);
       } finally {
         setLoading(false);
@@ -56,6 +59,16 @@ function MealDetails() {
       setLoading(false);
     }
   }, [id]);
+
+  if (!id) {
+    return (
+      <main>
+        <h1>Meal Details</h1>
+        <p>Meal ID not provided.</p>
+        <Link to="/search">Back to search</Link>
+      </main>
+    );
+  }
 
   if (loading) {
     return (

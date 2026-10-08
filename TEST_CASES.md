@@ -276,3 +276,14 @@ This test suite covers the core navigation and user-flow checks for the GlobalTa
 
 ## 7. Notes
 This test suite is based on the current screen structure and app routes in the project. If the original brief contains additional business rules or requirements from the PDF, these test cases can be expanded into a formal BRD-to-test-matrix format with IDs mapped to each requirement.
+
+## 8. Automated execution and coverage
+
+Vitest and Testing Library automate the app flows in `frontend/src/test/appFlows.test.jsx`, plus the focused tests under `frontend/src/pages/__tests__/` and `frontend/src/test/`. Run the suite from `frontend/`:
+
+```bash
+npm test
+npm run test:coverage
+```
+
+The coverage command reports statement, branch, function, and line coverage and writes HTML/LCOV output to `frontend/coverage/`. CI runs this command and requires at least 45% statements, 60% branches, 50% functions, and 45% lines. `TEST_MATRIX.csv` records automated outcomes; TC-14 remains a manual check because a unit test cannot establish that the production web server correctly serves the app shell on a refreshed deep link.
