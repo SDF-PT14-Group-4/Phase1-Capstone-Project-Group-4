@@ -14,10 +14,16 @@ export default function CategoryMeals() {
   );
 
   const [meals, setMeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(Boolean(decodedCategory));
+  const [error, setError] = useState(
+    decodedCategory ? "" : "No category was selected."
+  );
 
   useEffect(() => {
+    if (!decodedCategory) {
+      return;
+    }
+
     async function loadMeals() {
       try {
         setLoading(true);
@@ -38,35 +44,52 @@ export default function CategoryMeals() {
         const data = await response.json();
 
         setMeals(data.meals || []);
-      } catch (error) {
-        console.error("Category meals error:", error);
+      } catch {
         setError("Unable to load category meals.");
+        setMeals([]);
       } finally {
         setLoading(false);
       }
     }
 
-    if (decodedCategory) {
-      loadMeals();
-    } else {
-      setError("No category was selected.");
-      setLoading(false);
-    }
+    loadMeals();
   }, [decodedCategory]);
 
   return (
-    <main>
-      <h1>{decodedCategory} Meals</h1>
+    <main className="category-meals-page">
+      <section className="category-meals-header container">
+        <p className="category-eyebrow">
+          EXPLORE BY CATEGORY
+        </p>
 
-      {loading && (
-        <p>Loading {decodedCategory} meals...</p>
-      )}
+        <h1>{decodedCategory} Meals</h1>
 
-      {error && <p>{error}</p>}
+        <p className="category-description">
+          Discover delicious {decodedCategory.toLowerCase()} recipes
+          to add to your meal plans and favorites.
+        </p>
+      </section>
 
-      {!loading && !error && (
-        <MealGrid meals={meals} />
-      )}
+      <section className="category-meals-results container">
+        {loading && (
+          <p className="category-message">
+            Loading {decodedCategory} meals...
+          </p>
+        )}
+
+        {error && (
+          <p
+            className="category-message"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        {!loading && !error && (
+          <MealGrid meals={meals} />
+        )}
+      </section>
     </main>
   );
 }

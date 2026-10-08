@@ -1,2 +1,9 @@
 @import "./styles/variables.css";
 @import "./styles/global.css";
+@import "./styles/components/meal.css";
+@import "./styles/components/search.css";
+@import "./styles/components/category.css";
+@import "./styles/components/cuisine.css";
+@import "./styles/components/meal-details.css";
+@import "./styles/components/favorites.css";
+@import "./styles/components/home.css";

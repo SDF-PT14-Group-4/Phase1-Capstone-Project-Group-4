@@ -48,12 +48,20 @@ export function PlannerProvider({ children }) {
     }));
   }
 
+  function clearDay(day) {
+  setPlanner((currentPlanner) => ({
+    ...currentPlanner,
+    [day]: [],
+  }));
+  }
+
   return (
     <PlannerContext.Provider
       value={{
         planner,
         addMeal,
         removeMeal,
+        clearDay,
       }}
     >
       {children}

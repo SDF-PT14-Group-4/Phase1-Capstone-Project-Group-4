@@ -1,57 +1,71 @@
+/* =================================
+   Home Page
+   ================================= */
+
 .home-page {
-  min-height: 100%;
+  padding-bottom: var(--space-4xl);
 }
 
-/* ================================
+
+/* =================================
    Hero
-================================ */
+   ================================= */
 
 .home-hero {
-  min-height: 620px;
   display: flex;
   align-items: center;
-  padding: var(--space-4xl) 1rem;
 
-  background:
-    linear-gradient(
-      90deg,
-      rgba(28, 42, 48, 0.98) 0%,
-      rgba(28, 42, 48, 0.9) 55%,
-      rgba(28, 42, 48, 0.72) 100%
-    ),
-    var(--color-primary);
+  min-height: 620px;
+  padding: var(--space-4xl) var(--space-xl);
 
+  background: var(--color-primary);
   color: var(--color-text-light);
 }
 
 .home-hero-content {
   width: min(100%, var(--container-width));
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 .home-eyebrow {
   margin-bottom: var(--space-md);
+
   color: var(--color-secondary);
+
   font-size: var(--text-sm);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
 }
 
 .home-hero h1 {
   max-width: 800px;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
+
   color: var(--color-text-light);
-  font-size: clamp(3rem, 7vw, 5.5rem);
+
+  font-size: clamp(
+    var(--text-4xl),
+    7vw,
+    var(--text-5xl)
+  );
+
   line-height: 1.05;
 }
 
 .home-hero-description {
   max-width: 650px;
   margin-bottom: var(--space-2xl);
-  color: rgba(245, 244, 240, 0.82);
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
-  line-height: 1.8;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: var(--text-lg);
+  line-height: 1.7;
 }
+
+
+/* =================================
+   Hero Actions
+   ================================= */
 
 .home-hero-actions {
   display: flex;
@@ -64,89 +78,54 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   min-height: 48px;
-  padding: 0.75rem 1.5rem;
+  padding: var(--space-sm) var(--space-xl);
+
   border-radius: var(--radius-md);
 
-  font-size: var(--text-sm);
   font-weight: 600;
-  text-decoration: none;
 
   transition:
     transform var(--transition-fast),
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .home-primary-button {
   background: var(--color-secondary);
-  color: var(--color-primary);
+  color: var(--color-text-light);
 }
 
 .home-primary-button:hover {
-  background: #9cab98;
+  background: var(--color-surface);
   color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .home-secondary-button {
-  border: 1px solid rgba(245, 244, 240, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
   background: transparent;
   color: var(--color-text-light);
 }
 
 .home-secondary-button:hover {
-  border-color: var(--color-secondary);
-  background: rgba(138, 154, 134, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-text-light);
   transform: translateY(-2px);
 }
 
+
 /* =================================
-   Featured Meals
+   Discovery Section
    ================================= */
 
-.home-featured {
+.home-discovery {
   max-width: var(--container-width);
   margin-inline: auto;
 
   padding: var(--space-4xl) var(--space-xl);
-}
-
-.home-featured .home-section-heading {
-  margin-bottom: var(--space-2xl);
-}
-
-.home-message {
-  padding: var(--space-xl);
-
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-
-  background: var(--color-surface);
-
-  color: var(--color-text-muted);
-
-  text-align: center;
-}
-
-.home-featured-action {
-  display: flex;
-  justify-content: center;
-
-  margin-top: var(--space-2xl);
-}
-
-/* ================================
-   Discovery
-================================ */
-
-.home-discovery {
-  width: min(calc(100% - 2rem), var(--container-width));
-  margin: 0 auto;
-  padding: var(--space-4xl) 0;
 }
 
 .home-section-heading {
@@ -156,23 +135,37 @@
 
 .home-section-heading h2 {
   margin-bottom: var(--space-md);
+
+  font-size: var(--text-3xl);
 }
 
 .home-section-heading > p:last-child {
+  margin-bottom: 0;
+
   color: var(--color-text-muted);
   font-size: var(--text-lg);
+  line-height: 1.7;
 }
 
-/* Discovery cards */
+
+/* =================================
+   Discovery Cards
+   ================================= */
 
 .home-discovery-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-lg);
+
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+
+  gap: var(--space-xl);
 }
 
 .home-discovery-card {
-  position: relative;
+  display: block;
+
   min-height: 240px;
   padding: var(--space-xl);
 
@@ -189,15 +182,18 @@
 }
 
 .home-discovery-card:hover {
-  border-color: var(--color-secondary);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+  border-color: var(--color-secondary);
 }
 
 .home-card-number {
-  display: inline-block;
-  margin-bottom: var(--space-xl);
+  display: block;
+
+  margin-bottom: var(--space-2xl);
+
   color: var(--color-secondary);
+
   font-family: var(--font-heading);
   font-size: var(--text-xl);
   font-weight: 600;
@@ -205,82 +201,83 @@
 
 .home-discovery-card h3 {
   margin-bottom: var(--space-sm);
+
+  color: var(--color-primary);
+  font-size: var(--text-xl);
 }
 
 .home-discovery-card p {
   margin-bottom: 0;
+
   color: var(--color-text-muted);
+  line-height: 1.7;
 }
 
-/* ================================
+
+/* =================================
    Callout
-================================ */
+   ================================= */
 
 .home-callout {
-  width: min(calc(100% - 2rem), var(--container-width));
-  margin: 0 auto var(--space-4xl);
-  padding: var(--space-2xl);
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: var(--space-xl);
 
+  max-width: var(--container-width);
+  margin: 0 auto;
+
+  padding: var(--space-2xl) var(--space-xl);
+
   border-radius: var(--radius-lg);
-  background: var(--color-primary);
-  color: var(--color-text-light);
+
+  background: var(--color-muted);
+}
+
+.home-callout h2 {
+  margin-bottom: 0;
+
+  font-size: var(--text-3xl);
 }
 
 .home-callout .home-eyebrow {
   margin-bottom: var(--space-sm);
 }
 
-.home-callout h2 {
-  margin-bottom: 0;
-  color: var(--color-text-light);
-}
 
-/* ================================
-   Tablet
-================================ */
+/* =================================
+   Responsive
+   ================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
   .home-hero {
-    min-height: 560px;
-  }
-
-  @media (max-width: 800px) {
-  .home-featured {
+    min-height: 540px;
     padding: var(--space-3xl) var(--space-lg);
   }
-}
+
+  .home-discovery {
+    padding: var(--space-3xl) var(--space-lg);
+  }
 
   .home-discovery-grid {
     grid-template-columns: 1fr;
   }
 
-  .home-discovery-card {
-    min-height: auto;
-  }
-
   .home-callout {
-    align-items: flex-start;
-    flex-direction: column;
+    margin-inline: var(--space-lg);
+    padding: var(--space-xl);
   }
 }
 
-/* ================================
-   Mobile
-================================ */
-
 @media (max-width: 600px) {
   .home-hero {
-    min-height: 520px;
-    padding: var(--space-3xl) 1rem;
+    min-height: auto;
+    padding: var(--space-3xl) var(--space-lg);
   }
 
   .home-hero h1 {
-    font-size: clamp(2.5rem, 13vw, 3.5rem);
+    font-size: var(--text-4xl);
   }
 
   .home-hero-description {
@@ -289,7 +286,6 @@
 
   .home-hero-actions {
     flex-direction: column;
-    align-items: stretch;
   }
 
   .home-primary-button,
@@ -297,20 +293,20 @@
     width: 100%;
   }
 
-  .home-discovery {
-    padding: var(--space-3xl) 0;
-  }
-
   .home-section-heading h2 {
-    font-size: var(--text-3xl);
+    font-size: var(--text-2xl);
   }
 
   .home-callout {
-    margin-bottom: var(--space-3xl);
-    padding: var(--space-xl);
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .home-callout h2 {
     font-size: var(--text-2xl);
+  }
+
+  .home-callout .home-primary-button {
+    width: auto;
   }
 }

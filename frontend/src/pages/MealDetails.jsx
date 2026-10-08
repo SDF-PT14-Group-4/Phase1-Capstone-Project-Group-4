@@ -1,76 +1,100 @@
-import{useEffect, useState} from "react";
-import { Link,useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext";
 
 function MealDetails() {
   const { id } = useParams();
+  const {
+  toggleFavorite,
+  isFavorite,
+} = useFavorites();
 
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
-  
+
   useEffect(() => {
     async function fetchMealDetails() {
-      try{
+      try {
         setLoading(true);
-        setError('');
+        setError("");
+
         const response = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch meal details.');
+          throw new Error("Failed to fetch meal details.");
         }
 
         const data = await response.json();
- 
+
         if (!data.meals || data.meals.length === 0) {
-          setError('Meal not found.');
+          setError("Meal not found.");
           setMeal(null);
           return;
         }
 
         setMeal(data.meals[0]);
-
-      } catch (err) {
-        setError('Unable to fetch meal details right now.');
+      } catch {
+        setError(
+          "Unable to fetch meal details right now."
+        );
         setMeal(null);
       } finally {
         setLoading(false);
       }
     }
-    
+
     if (id) {
       fetchMealDetails();
+    } else {
+      setError("No meal was selected.");
+      setLoading(false);
     }
   }, [id]);
 
   if (loading) {
-    return <p>Loading meal details...</p>;
-  }
-
-  if (error) {
     return (
-      <main>
-        <h1>Meal Details</h1>
-        <p>{error}</p>
-        <Link to="/search">Back to search</Link>
+      <main className="meal-details-page container">
+        <p className="meal-details-message">
+          Loading meal details...
+        </p>
       </main>
     );
   }
 
+  if (error || !meal) {
+    return (
+      <main className="meal-details-page container">
+        <section className="meal-details-message">
+          <h1>Meal Details</h1>
+          <p>{error || "Meal not found."}</p>
+          <Link to="/search">Back to Search</Link>
+        </section>
+      </main>
+    );
+  }
+
+  const favorite = isFavorite(meal.idMeal);
   const ingredients = [];
+
   for (let i = 1; i <= 20; i++) {
     const ingredient = meal[`strIngredient${i}`];
     const measure = meal[`strMeasure${i}`];
+
     if (ingredient && ingredient.trim()) {
-      ingredients.push(`${measure ? measure.trim() : ""} ${ingredient.trim()}`.trim());
+      ingredients.push({
+        ingredient: ingredient.trim(),
+        measure: measure ? measure.trim() : "",
+      });
     }
   }
 
-    const addToBasket = () => {
+  const addToBasket = () => {
     if (!price || Number(price) <= 0) {
       setMessage("Please enter a valid price.");
       return;
@@ -117,83 +141,190 @@ function MealDetails() {
     setMessage(`${meal.strMeal} added to basket.`);
   };
 
+  return (
+    <main className="meal-details-page">
+      <div className="container">
+        <Link
+          to="/search"
+          className="meal-details-back"
+        >
+          ← Back to Search
+        </Link>
 
-    return (
-    <main>
-      <Link to="/search">← Back to Search</Link>
+        <section className="meal-details-hero">
+          <div className="meal-details-image">
+            <img
+              src={meal.strMealThumb}
+              alt={meal.strMeal}
+            />
+          </div>
 
-      <h1>{meal.strMeal}</h1>
+          <div className="meal-details-intro">
+  <p className="meal-details-eyebrow">
+    RECIPE
+  </p>
 
-      <img
-        src={meal.strMealThumb}
-        alt={meal.strMeal}
-        width="400"
-      />
+  <div className="meal-details-title-row">
+    <h1>{meal.strMeal}</h1>
 
-      <h2>Meal Information</h2>
+    <button
+      type="button"
+      className={`meal-details-favorite ${
+        favorite ? "active" : ""
+      }`}
+      onClick={() => toggleFavorite(meal)}
+      aria-label={
+        favorite
+          ? `Remove ${meal.strMeal} from favorites`
+          : `Add ${meal.strMeal} to favorites`
+      }
+      aria-pressed={favorite}
+    >
+      {favorite ? "♥" : "♡"}
+    </button>
+  </div>
 
-      <p>
-        <strong>Category:</strong> {meal.strCategory}
-      </p>
+            <div className="meal-details-meta">
+              <span>{meal.strCategory}</span>
+              <span>{meal.strArea}</span>
+            </div>
 
-      <p>
-        <strong>Cuisine:</strong> {meal.strArea}
-      </p>
+            {meal.strTags && (
+              <div className="meal-details-tags">
+                {meal.strTags.split(",").map((tag) => (
+                  <span key={tag.trim()}>
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
 
-      {meal.strTags && (
-        <p>
-          <strong>Tags:</strong> {meal.strTags}
-        </p>
-      )}
+        <section className="meal-details-section">
+          <div className="meal-details-section-heading">
+            <p className="meal-details-eyebrow">
+              WHAT YOU NEED
+            </p>
 
-      <h2>Ingredients</h2>
+            <h2>Ingredients</h2>
+          </div>
 
-      <ul>
-        {ingredients.map((ingredient, index) => (
-          <li key={index}>{ingredient}</li>
-        ))}
-      </ul>
+          <div className="ingredients-grid">
+            {ingredients.map(
+              ({ ingredient, measure }) => (
+                <div
+                  className="ingredient-item"
+                  key={`${ingredient}-${measure}`}
+                >
+                  <span className="ingredient-name">
+                    {ingredient}
+                  </span>
 
-      <h2>Instructions</h2>
+                  {measure && (
+                    <span className="ingredient-measure">
+                      {measure}
+                    </span>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        </section>
 
-      <p>{meal.strInstructions}</p>
-      
-      <h2>Add to Basket</h2>
+        <section className="meal-details-section">
+          <div className="meal-details-section-heading">
+            <p className="meal-details-eyebrow">
+              HOW TO PREPARE IT
+            </p>
 
-      <label>
-        Price (Ksh):{" "}
-        <input
-          type="number"
-          min="1"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Enter price"
-        />
-      </label>
+            <h2>Instructions</h2>
+          </div>
 
-      <br />
-      <br />
+          <div className="instructions">
+            {meal.strInstructions
+              .split(/\r?\n/)
+              .filter((step) => step.trim())
+              .map((step, index) => (
+                <div
+                  className="instruction-step"
+                  key={index}
+                >
+                  <span className="instruction-number">
+                    {index + 1}
+                  </span>
 
-      <button onClick={addToBasket}>
-        Add to Basket
-      </button>
+                  <p>{step.trim()}</p>
+                </div>
+              ))}
+          </div>
+        </section>
 
-      {message && <p>{message}</p>}
+        <section className="meal-details-section basket-section">
+          <div className="meal-details-section-heading">
+            <p className="meal-details-eyebrow">
+              MEAL MANAGEMENT
+            </p>
 
-      {meal.strYoutube && (
-        <p>
-          <a
-            href={meal.strYoutube}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Watch preparation video
-          </a>
-        </p>
-      )}
+            <h2>Add to Basket</h2>
+          </div>
+
+          <div className="basket-form">
+            <label htmlFor="meal-price">
+              Price (Ksh)
+            </label>
+
+            <div className="basket-input-row">
+              <input
+                id="meal-price"
+                type="number"
+                min="1"
+                value={price}
+                onChange={(e) =>
+                  setPrice(e.target.value)
+                }
+                placeholder="Enter price"
+              />
+
+              <button
+                type="button"
+                onClick={addToBasket}
+              >
+                Add to Basket
+              </button>
+            </div>
+
+            {message && (
+              <p className="basket-message">
+                {message}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {meal.strYoutube && (
+          <section className="meal-details-section video-section">
+            <div className="meal-details-section-heading">
+              <p className="meal-details-eyebrow">
+                WATCH AND LEARN
+              </p>
+
+              <h2>Preparation Video</h2>
+            </div>
+
+            <a
+              href={meal.strYoutube}
+              target="_blank"
+              rel="noreferrer"
+              className="video-link"
+            >
+              Watch {meal.strMeal} preparation on YouTube →
+            </a>
+          </section>
+        )}
+      </div>
     </main>
   );
 }
 
 export default MealDetails;
-
