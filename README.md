@@ -1,10 +1,14 @@
 # GlobalTaste
 
+## Repository
+
+This project is hosted in the GitHub organization `SDF-PT14-Group-4` under the repository `Phase1-Capstone-Project-Group-4`.
+
 ## Live Demo
 
 [View the live application](https://phase1-capstone-project-group-4.netlify.app)
 
-GlobalTaste is a React + Vite meal discovery application that helps users explore meals, search by keyword, view ingredients and instructions, save favorites, and plan meals from around the world.
+GlobalTaste is a React + Vite meal discovery application for browsing meals, searching by keyword, viewing ingredients and instructions, saving favorites, and planning meals from around the world.
 
 ## Project overview
 
@@ -34,6 +38,8 @@ This app provides a responsive single-page experience for browsing meals using t
 
 ```bash
 Phase1-Capstone-Project-Group-4/
+├── .github/
+│   └── workflows/
 ├── backend/
 │   ├── app/
 │   ├── migrations/
@@ -41,20 +47,20 @@ Phase1-Capstone-Project-Group-4/
 │   ├── requirements.txt
 │   └── README.md
 ├── README.md
+├── SECURITY.md
 ├── TEST_CASES.md
 ├── TEST_MATRIX.csv
 ├── frontend/
-│   ├── package.json
-│   ├── vite.config.js
+│   ├── README.md
+│   ├── eslint.config.js
 │   ├── index.html
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
 │   ├── public/
-│   └── src/
-│       ├── App.jsx
-│       ├── layouts/
-│       ├── pages/
-│       ├── services/
-│       └── test/
-└── Phase1-Capstone-Project-Group-4/   # duplicate project folder in this workspace
+│   ├── src/
+│   └── vite.config.js
+└── LICENCE
 ```
 
 ## Getting started
@@ -99,16 +105,20 @@ npm run build      # create a production build
 npm run preview    # preview the production build locally
 npm run lint       # run ESLint checks
 npm run test       # run the Vitest test suite
+npm run test:coverage  # run tests and enforce coverage thresholds
 npm run test:watch # run tests in watch mode
 ```
 
 ## Testing
 
-The project includes unit tests for the meal service and UI layout. To run the test suite:
+The project uses Vitest and Testing Library for service, component, and app-flow tests. Run:
 
 ```bash
 npm run test
+npm run test:coverage
 ```
+
+The coverage command reports statement, branch, function, and line coverage in the terminal and writes HTML and LCOV reports to `frontend/coverage/`. CI runs the coverage command and enforces the current minimums: 45% statements, 60% branches, 50% functions, and 45% lines. The CSV test matrix identifies the user journeys automated in the suite; cases needing a real browser or deployment remain manual.
 
 ## CI/CD
 
@@ -116,17 +126,16 @@ GitHub Actions runs the test suite, ESLint, and a production build for pull requ
 
 To enable production deploys, add `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as an Actions secret in the GitHub repository settings. Without the site ID variable, CI still runs but the deploy step is skipped.
 
-
 ## Notes
 
 - The app fetches real meal data from TheMealDB.
 - Internet access is required for live API calls while running the app in development.
-- This README is meant to serve as the project setup and usage guide for the GlobalTaste app.
+- This README serves as the project setup and usage guide for the GlobalTaste app.
 
 ## Contributor instructions
 
 1. Install Node.js 18 or newer.
 2. Run `npm install` in the frontend folder before starting work.
 3. Use `npm run dev` while developing.
-4. Validate changes with `npm run lint` and `npm run test` before submitting updates.
+4. Validate changes with `npm run lint` and `npm run test:coverage` before submitting updates.
 5. Use `npm run build` to confirm the production bundle still compiles.
