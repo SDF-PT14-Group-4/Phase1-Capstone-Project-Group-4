@@ -5,84 +5,92 @@ import MealGrid from "../components/meal/MealGrid";
 const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
 export default function CategoryMeals() {
-  const { category = "" } = useParams();
+const { category = "" } = useParams();
 
-  const [meals, setMeals] = useState([]);
-  const [loading, setLoading] = useState(Boolean(category));
-  const [error, setError] = useState(
-    category ? "" : "No category was selected.",
-  );
+let decodedCategory = category;
 
-  useEffect(() => {
-    if (!category) return;
+try {
+decodedCategory = decodeURIComponent(category);
+} catch {
+decodedCategory = category;
+}
 
-    const controller = new AbortController();
+const [meals, setMeals] = useState([]);
+const [loading, setLoading] = useState(Boolean(decodedCategory));
+const [error, setError] = useState(
+decodedCategory ? "" : "No category was selected.",
+);
 
-    async function loadMeals() {
-      try {
-        setLoading(true);
-        setError("");
+useEffect(() => {
+if (!decodedCategory) return;
 
-        const response = await fetch(
-          `${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`,
-          { signal: controller.signal },
-        );
+const controller = new AbortController();
 
-        if (!response.ok) {
-          throw new Error("Failed to load category meals.");
-        }
+async function loadMeals() {
+  try {
+    setLoading(true);
+    setError("");
 
-        const data = await response.json();
+    const response = await fetch(
+      `${BASE_URL}/filter.php?c=${encodeURIComponent(decodedCategory)}`,
+      { signal: controller.signal },
+    );
 
-        if (!data.meals) {
-          setError(`No meals found for category "${category}".`);
-          setMeals([]);
-        } else {
-          setMeals(data.meals);
-        }
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          setError("Unable to load category meals.");
-          setMeals([]);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
+    if (!response.ok) {
+      throw new Error("Failed to load category meals.");
     }
 
-    loadMeals();
+    const data = await response.json();
 
-    return () => controller.abort();
-  }, [category]);
+    if (!data.meals || data.meals.length === 0) {
+      setError(`No meals found for category "${decodedCategory}".`);
+      setMeals([]);
+    } else {
+      setMeals(data.meals);
+    }
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      setError("Unable to load category meals.");
+      setMeals([]);
+    }
+  } finally {
+    if (!controller.signal.aborted) {
+      setLoading(false);
+    }
+  }
+}
 
-  return (
-    <main className="category-meals-page">
-      <section className="category-meals-header container">
-        <p className="category-eyebrow">EXPLORE BY CATEGORY</p>
-        <h1>{category} Meals</h1>
-        <p className="category-description">
-          Discover delicious {category.toLowerCase()} recipes to add to your
-          meal plans and favorites.
-        </p>
-      </section>
+loadMeals();
 
-      <section className="category-meals-results container">
-        {loading && (
-          <p className="category-message">
-            Loading {category} meals...
-          </p>
-        )}
+return () => controller.abort();
 
-        {error && (
-          <p className="category-message" role="alert">
-            {error}
-          </p>
-        )}
+}, [decodedCategory]);
 
-        {!loading && !error && <MealGrid meals={meals} />}
-      </section>
-    </main>
-  );
+return ( <main className="category-meals-page"> <section className="category-meals-header container"> <p className="category-eyebrow">EXPLORE BY CATEGORY</p> <h1>{decodedCategory} Meals</h1>
+
+```
+    <p className="category-description">
+      Discover delicious {decodedCategory.toLowerCase()} recipes to add
+      to your meal plans and favorites.
+    </p>
+  </section>
+
+  <section className="category-meals-results container">
+    {loading && (
+      <p className="category-message">
+        Loading {decodedCategory} meals...
+      </p>
+    )}
+
+    {error && (
+      <p className="category-message" role="alert">
+        {error}
+      </p>
+    )}
+
+    {!loading && !error && <MealGrid meals={meals} />}
+  </section>
+</main>
+
+);
 }

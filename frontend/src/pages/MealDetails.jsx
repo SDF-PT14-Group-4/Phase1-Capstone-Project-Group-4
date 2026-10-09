@@ -17,6 +17,8 @@ function MealDetails() {
   useEffect(() => {
     if (!id) return;
 
+    const controller = new AbortController();
+
     async function fetchMealDetails() {
       try {
         setLoading(true);
@@ -24,6 +26,7 @@ function MealDetails() {
 
         const response = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(id)}`,
+          { signal: controller.signal }
         );
 
         if (!response.ok) {
@@ -39,15 +42,21 @@ function MealDetails() {
         }
 
         setMeal(data.meals[0]);
-      } catch {
-        setError("Unable to fetch meal details right now.");
-        setMeal(null);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          setError("Unable to fetch meal details right now.");
+          setMeal(null);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchMealDetails();
+
+    return () => controller.abort();
   }, [id]);
 
   if (!id) {
@@ -107,7 +116,7 @@ function MealDetails() {
         name: meal.strMeal,
         image: meal.strMealThumb,
       },
-      Number(price),
+      Number(price)
     );
 
     setMessage(`${meal.strMeal} added to basket.`);
@@ -193,7 +202,7 @@ function MealDetails() {
               .split(/\r?\n/)
               .filter((step) => step.trim())
               .map((step, index) => (
-                <div className="instruction-step" key={index}>
+                <div className="instruction-step" key={`step-${index}`}>
                   <span className="instruction-number">{index + 1}</span>
                   <p>{step.trim()}</p>
                 </div>

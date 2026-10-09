@@ -159,8 +159,11 @@ expect(
   screen.getByText("1 lb", { selector: ".ingredient-measure" })
 ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
-      "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772"
-    );
+  "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772",
+  expect.objectContaining({
+    signal: expect.any(AbortSignal),
+  }),
+);
   });
 
   it("adds a category meal to favorites", async () => {

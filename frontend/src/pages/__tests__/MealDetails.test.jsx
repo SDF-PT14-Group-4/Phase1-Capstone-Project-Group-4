@@ -64,8 +64,11 @@ describe("MealDetails", () => {
       await screen.findByRole("heading", { name: /teriyaki chicken casserole/i })
     ).toBeInTheDocument();
     expect(fetch).toHaveBeenCalledWith(
-      "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772"
-    );
+  "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772",
+  expect.objectContaining({
+    signal: expect.any(AbortSignal),
+  }),
+);
   });
 
   it("handles a missing meal id gracefully", () => {
