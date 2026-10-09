@@ -1,5 +1,5 @@
 import MealGrid from "../components/meal/MealGrid";
-import { useFavorites } from "../context/FavoritesContext";
+import { useFavorites } from "../hooks/useFavorites.js";
 
 export default function Favorites() {
   const { favorites } = useFavorites();

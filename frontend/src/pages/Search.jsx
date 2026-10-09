@@ -59,10 +59,7 @@ function Search() {
           to cook today.
         </p>
 
-        <form
-          className="search-form"
-          onSubmit={handleSearch}
-        >
+        <form className="search-form" onSubmit={handleSearch}>
           <div className="search-input-wrapper">
             <input
               type="text"
@@ -72,10 +69,7 @@ function Search() {
               aria-label="Search for a meal"
             />
 
-            <button
-              type="submit"
-              disabled={loading}
-            >
+            <button type="submit" disabled={loading}>
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
@@ -84,10 +78,7 @@ function Search() {
 
       <section className="search-results container">
         {error && (
-          <div
-            className="search-message"
-            role="alert"
-          >
+          <div className="search-message" role="alert">
             {error}
           </div>
         )}
@@ -97,8 +88,7 @@ function Search() {
             <div className="search-results-header">
               <h2>Search Results</h2>
               <p>
-                {meals.length}{" "}
-                {meals.length === 1 ? "meal" : "meals"} found
+                {meals.length} {meals.length === 1 ? "meal" : "meals"} found
               </p>
             </div>
 

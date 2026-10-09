@@ -1,15 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-} from "react";
+import { BasketContext } from "./basket-context.js";
+import { STORAGE_KEYS } from "../utils/storage";
 import useLocalStorage from "../hooks/useLocalStorage";
 
-const BasketContext = createContext(null);
-
-const STORAGE_KEYS = {
-  basket: "mealBasket",
-};
+// Prototype pricing only. TheMealDB is a recipe source, not a reliable restaurant
+// catalogue. Prices are explicitly labelled as demo prices.
+const DEMO_PRICE = 10;
 
 export function BasketProvider({ children }) {
   const [items, setItems] = useLocalStorage(
@@ -17,7 +12,7 @@ export function BasketProvider({ children }) {
     []
   );
 
-  function addToBasket(meal, price) {
+  function addToBasket(meal, price = DEMO_PRICE) {
     if (!meal?.id || !price || Number(price) <= 0) {
       return;
     }
@@ -46,10 +41,7 @@ export function BasketProvider({ children }) {
         {
           id: meal.id,
           name: meal.name,
-          image:
-            meal.image ||
-            meal.thumbnail ||
-            "",
+          image: meal.image || meal.thumbnail || "",
           price: numericPrice,
           quantity: 1,
         },
@@ -83,38 +75,22 @@ export function BasketProvider({ children }) {
   }
 
   const total = items.reduce(
-    (sum, item) =>
-      sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const value = useMemo(
-    () => ({
-      items,
-      total,
-      addToBasket,
-      decrement,
-      removeFromBasket,
-      clearBasket,
-    }),
-    [items, total]
-  );
+  const value = {
+  items,
+  total,
+  addToBasket,
+  decrement,
+  removeFromBasket,
+  clearBasket,
+};
 
   return (
     <BasketContext.Provider value={value}>
       {children}
     </BasketContext.Provider>
   );
-}
-
-export function useBasket() {
-  const context = useContext(BasketContext);
-
-  if (!context) {
-    throw new Error(
-      "useBasket must be used inside BasketProvider"
-    );
-  }
-
-  return context;
 }
