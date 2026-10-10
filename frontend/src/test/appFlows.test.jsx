@@ -4,6 +4,7 @@ import App from "../App";
 import { FavoritesProvider } from "../context/FavoritesContext";
 import { PlannerContext } from "../context/plannerContext.js";
 import { useFavorites } from "../hooks/useFavorites.js";
+import { BasketProvider } from "../context/BasketContext";
 
 const MEAL = {
   idMeal: "52772",
@@ -18,25 +19,28 @@ const MEAL = {
 
 function renderApp(path = "/") {
   window.history.replaceState({}, "", path);
+
   return render(
     <FavoritesProvider>
-      <PlannerContext.Provider
-        value={{
-          planner: {
-            monday: [],
-            tuesday: [],
-            wednesday: [],
-            thursday: [],
-            friday: [],
-            saturday: [],
-            sunday: [],
-          },
-          addMeal: vi.fn(),
-          removeMeal: vi.fn(),
-        }}
-      >
-        <App />
-      </PlannerContext.Provider>
+      <BasketProvider>
+        <PlannerContext.Provider
+          value={{
+            planner: {
+              monday: [],
+              tuesday: [],
+              wednesday: [],
+              thursday: [],
+              friday: [],
+              saturday: [],
+              sunday: [],
+            },
+            addMeal: vi.fn(),
+            removeMeal: vi.fn(),
+          }}
+        >
+          <App />
+        </PlannerContext.Provider>
+      </BasketProvider>
     </FavoritesProvider>
   );
 }
@@ -77,20 +81,24 @@ describe("application user flows", () => {
     renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /welcome to globaltaste/i })
+      screen.getByRole("heading", { name: /discover the world, one meal at a time/i })
     ).toBeInTheDocument();
 
-    for (const label of [
-      "Home",
-      "Search",
-      "Categories",
-      "Favorites",
-      "Planner",
-      "Basket",
-      "Surprise Me",
-    ]) {
-      expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
-    }
+  for (const label of [
+  "Home",
+  "Search",
+  "Categories",
+  "Favorites",
+  "Planner",
+  "Basket",
+]) {
+  expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+}
+
+expect(
+  screen.getAllByRole("link", { name: "Surprise Me" }).length
+).toBeGreaterThan(0);
+
     expect(screen.getByText(/© 2026 GlobalTaste/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("link", { name: "Categories" }));
@@ -115,16 +123,18 @@ describe("application user flows", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "Home" }));
     expect(
-      await screen.findByRole("heading", { name: /welcome to globaltaste/i })
+      await screen.findByRole("heading", { name: /discover the world, one meal at a time/i })
     ).toBeInTheDocument();
   });
 
   it("searches meals, opens details, and saves a favorite", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
-    vi.stubGlobal("fetch", fetchMock);
-    renderApp();
+  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
+
+vi.stubGlobal("fetch", fetchMock);
+renderApp();
 
     fireEvent.click(screen.getByRole("link", { name: "Search" }));
     const input = screen.getByPlaceholderText(/search for a meal/i);
@@ -132,18 +142,28 @@ describe("application user flows", () => {
     expect(input).toHaveValue("chicken");
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
-    const mealLink = await screen.findByRole("link", {
-      name: MEAL.strMeal,
-    });
-    fireEvent.click(mealLink);
+    expect(
+      await screen.findByRole("heading", { name: MEAL.strMeal })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("link", { name: /view recipe/i }));
 
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
     ).toBeInTheDocument();
-    expect(screen.getByText("1 lb Chicken")).toBeInTheDocument();
+    expect(
+  screen.getByText("Chicken", { selector: ".ingredient-name" })
+).toBeInTheDocument();
+
+expect(
+  screen.getByText("1 lb", { selector: ".ingredient-measure" })
+).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
-      "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772"
-    );
+  "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772",
+  expect.objectContaining({
+    signal: expect.any(AbortSignal),
+  }),
+);
   });
 
   it("adds a category meal to favorites", async () => {
@@ -191,22 +211,27 @@ describe("application user flows", () => {
   });
 
   it("adds a meal to the basket and supports the empty basket state", async () => {
-    vi.stubGlobal("fetch", vi.fn()
-      .mockResolvedValueOnce(
-        mockJsonResponse({
-          categories: [
-            {
-              idCategory: "1",
-              strCategory: "Chicken",
-              strCategoryThumb: "https://example.com/chicken.jpg",
-            },
-          ],
-        })
-      )
-      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(
+          mockJsonResponse({
+            categories: [
+              {
+                idCategory: "1",
+                strCategory: "Chicken",
+                strCategoryThumb: "https://example.com/chicken.jpg",
+              },
+            ],
+          })
+        )
+        .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+        .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+    );
     renderApp("/basket");
-    expect(screen.getByText(/your basket is empty/i)).toBeInTheDocument();
+    expect(
+  screen.getByRole("heading", { name: /nothing here yet/i }),
+).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("link", { name: "Categories" }));
     fireEvent.click(await screen.findByRole("link", { name: /chicken/i }));
@@ -224,11 +249,15 @@ describe("application user flows", () => {
     expect(screen.getByText(/added to basket/i)).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem("mealBasket"))).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("link", { name: "Basket" }));
-    expect(await screen.findByText(/total:\s*ksh\s*500/i)).toBeInTheDocument();
-  });
 
-  it("loads a valid random meal recommendation", async () => {
+fireEvent.click(screen.getByRole("link", { name: "Basket" }));
+expect(screen.getByText("Total").parentElement).toHaveTextContent(
+  /KSh\s*500/
+);
+});
+
+// This is the next independent test.
+it("loads a valid random meal recommendation", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mockJsonResponse({ meals: [MEAL] }));
     vi.stubGlobal("fetch", fetchMock);
     renderApp("/surprise");

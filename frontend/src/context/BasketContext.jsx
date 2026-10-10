@@ -1,32 +1,44 @@
-import { BasketContext } from "./basketContext.js";
+import { BasketContext } from "./basket-context.js";
 import { STORAGE_KEYS } from "../utils/storage";
 import useLocalStorage from "../hooks/useLocalStorage";
 
-// Prototype pricing only. TheMealDB is a recipe source, not a reliable restaurant
-// catalogue. Prices are explicitly labelled as demo prices.
+// Demo pricing only: TheMealDB is a recipe source, not a restaurant catalogue.
 const DEMO_PRICE = 10;
 
 export function BasketProvider({ children }) {
   const [items, setItems] = useLocalStorage(STORAGE_KEYS.basket, []);
 
-  function addToBasket(meal) {
-    if (!meal?.id) return;
+  function addToBasket(meal, price = DEMO_PRICE) {
+    if (!meal?.id || !price || Number(price) <= 0) {
+      return;
+    }
+
+    const numericPrice = Number(price);
+
     setItems((current) => {
       const existing = current.find((item) => item.id === meal.id);
+
       if (existing) {
         return current.map((item) =>
-          item.id === meal.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === meal.id
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                price: numericPrice,
+              }
+            : item,
         );
       }
+
       return [
         ...current,
         {
           id: meal.id,
           name: meal.name,
-          thumbnail: meal.thumbnail || meal.image || "",
+          image: meal.image || meal.thumbnail || "",
+          price: numericPrice,
           quantity: 1,
-          demoPrice: DEMO_PRICE
-        }
+        },
       ];
     });
   }
@@ -35,9 +47,11 @@ export function BasketProvider({ children }) {
     setItems((current) =>
       current
         .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+          item.id === id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   }
 
@@ -49,9 +63,23 @@ export function BasketProvider({ children }) {
     setItems([]);
   }
 
-  const total = items.reduce((sum, item) => sum + item.demoPrice * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
-  const value = { items, total, addToBasket, decrement, removeFromBasket, clearBasket };
+  const value = {
+  items,
+  total,
+  addToBasket,
+  decrement,
+  removeFromBasket,
+  clearBasket,
+};
 
-  return <BasketContext.Provider value={value}>{children}</BasketContext.Provider>;
+  return (
+    <BasketContext.Provider value={value}>
+      {children}
+    </BasketContext.Provider>
+  );
 }

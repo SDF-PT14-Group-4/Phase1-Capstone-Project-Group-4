@@ -1,0 +1,57 @@
+/* =================================
+   Favorites Page
+   ================================= */
+
+.favorites-page {
+  padding-top: var(--space-3xl);
+  padding-bottom: var(--space-4xl);
+}
+
+.favorites-header {
+  max-width: 700px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.favorites-eyebrow {
+  margin-bottom: var(--space-sm);
+  color: var(--color-secondary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.favorites-header h1 {
+  margin-bottom: var(--space-md);
+}
+
+.favorites-description {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.favorites-count {
+  margin-top: var(--space-2xl);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.favorites-empty {
+  max-width: 600px;
+  margin: var(--space-3xl) auto 0;
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.favorites-empty h2 {
+  margin-bottom: var(--space-sm);
+}
+
+.favorites-empty p {
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+}
