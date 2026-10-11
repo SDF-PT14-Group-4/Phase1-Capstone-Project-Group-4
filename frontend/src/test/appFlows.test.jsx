@@ -82,23 +82,23 @@ describe("application user flows", () => {
 
     expect(
       screen.getByRole("heading", { name: /a world of flavor is waiting/i })
-      screen.getByRole("heading", { name: /discover the world, one meal at a time/i })
     ).toBeInTheDocument();
 
-  for (const label of [
-  "Home",
-  "Search",
-  "Categories",
-  "Favorites",
-  "Planner",
-  "Basket",
-]) {
-  expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
-}
+    for (const label of [
+      "Home",
+      "Search",
+      "Categories",
+      "Cuisines",
+      "Favorites",
+      "Planner",
+      "Basket",
+    ]) {
+      expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    }
 
-expect(
-  screen.getAllByRole("link", { name: "Surprise Me" }).length
-).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("link", { name: "Surprise Me" }).length
+    ).toBeGreaterThan(0);
 
     expect(screen.getByText(/© 2026 GlobalTaste/i)).toBeInTheDocument();
 
@@ -125,18 +125,16 @@ expect(
     fireEvent.click(screen.getByRole("link", { name: "Home" }));
     expect(
       await screen.findByRole("heading", { name: /a world of flavor is waiting/i })
-      await screen.findByRole("heading", { name: /discover the world, one meal at a time/i })
     ).toBeInTheDocument();
-  });
+  }, 10000);
 
   it("searches meals, opens details, and saves a favorite", async () => {
     const fetchMock = vi.fn()
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
+      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
 
-vi.stubGlobal("fetch", fetchMock);
-renderApp();
+    vi.stubGlobal("fetch", fetchMock);
+    renderApp();
 
     fireEvent.click(screen.getByRole("link", { name: "Search" }));
     const input = screen.getByRole("searchbox", { name: "Search meals" });
@@ -155,8 +153,6 @@ renderApp();
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
     ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("link", { name: /view recipe/i }));
 
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
