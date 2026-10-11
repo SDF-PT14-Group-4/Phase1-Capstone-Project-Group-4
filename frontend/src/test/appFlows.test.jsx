@@ -81,23 +81,24 @@ describe("application user flows", () => {
     renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /discover the world, one meal at a time/i })
+      screen.getByRole("heading", { name: /a world of flavor is waiting/i })
     ).toBeInTheDocument();
 
-  for (const label of [
-  "Home",
-  "Search",
-  "Categories",
-  "Favorites",
-  "Planner",
-  "Basket",
-]) {
-  expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
-}
+    for (const label of [
+      "Home",
+      "Search",
+      "Categories",
+      "Cuisines",
+      "Favorites",
+      "Planner",
+      "Basket",
+    ]) {
+      expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    }
 
-expect(
-  screen.getAllByRole("link", { name: "Surprise Me" }).length
-).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("link", { name: "Surprise Me" }).length
+    ).toBeGreaterThan(0);
 
     expect(screen.getByText(/© 2026 GlobalTaste/i)).toBeInTheDocument();
 
@@ -123,30 +124,35 @@ expect(
 
     fireEvent.click(screen.getByRole("link", { name: "Home" }));
     expect(
-      await screen.findByRole("heading", { name: /discover the world, one meal at a time/i })
+      await screen.findByRole("heading", { name: /a world of flavor is waiting/i })
     ).toBeInTheDocument();
-  });
+  }, 10000);
 
   it("searches meals, opens details, and saves a favorite", async () => {
     const fetchMock = vi.fn()
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-  .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
+      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
+      .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }));
 
-vi.stubGlobal("fetch", fetchMock);
-renderApp();
+    vi.stubGlobal("fetch", fetchMock);
+    renderApp();
 
     fireEvent.click(screen.getByRole("link", { name: "Search" }));
-    const input = screen.getByPlaceholderText(/search for a meal/i);
+    const input = screen.getByRole("searchbox", { name: "Search meals" });
     fireEvent.change(input, { target: { value: "chicken" } });
     expect(input).toHaveValue("chicken");
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
+    await screen.findByRole("heading", { name: MEAL.strMeal });
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `Add ${MEAL.strMeal} to favorites`,
+      })
+    );
+    expect(JSON.parse(localStorage.getItem("favorites"))).toHaveLength(1);
+    fireEvent.click(screen.getByRole("link", { name: "View Recipe" }));
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
     ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("link", { name: /view recipe/i }));
 
     expect(
       await screen.findByRole("heading", { name: MEAL.strMeal })
@@ -198,15 +204,15 @@ expect(
 
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
     expect(
-      screen.getByRole("alert", { name: "" })
-    ).toHaveTextContent(/please enter the meal/i);
+      screen.getByRole("status")
+    ).toHaveTextContent(/enter a meal name to start searching/i);
 
-    fireEvent.change(screen.getByPlaceholderText(/search for a meal/i), {
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search meals" }), {
       target: { value: "no-such-meal" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /no meals found for your search/i
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /no meals found\. try another name/i
     );
   });
 

@@ -54,6 +54,7 @@ Phase1-Capstone-Project-Group-4/
 │   ├── README.md
 │   ├── eslint.config.js
 │   ├── index.html
+│   ├── index.html
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public/
@@ -104,7 +105,7 @@ npm run build      # create a production build
 npm run preview    # preview the production build locally
 npm run lint       # run ESLint checks
 npm run test       # run the Vitest test suite
-npm run test:coverage # run tests and enforce coverage thresholds
+npm run test:coverage  # run tests and enforce coverage thresholds
 npm run test:watch # run tests in watch mode
 ```
 

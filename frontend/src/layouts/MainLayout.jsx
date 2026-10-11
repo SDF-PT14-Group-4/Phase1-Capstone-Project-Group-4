@@ -25,9 +25,9 @@ function MainLayout() {
             aria-expanded={menuOpen}
             aria-controls="main-navigation"
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <span />
+            <span />
+            <span />
           </button>
 
           <div
@@ -44,6 +44,10 @@ function MainLayout() {
 
             <NavLink to="/categories" onClick={closeMenu}>
               Categories
+            </NavLink>
+
+            <NavLink to="/cuisines" onClick={closeMenu}>
+              Cuisines
             </NavLink>
 
             <NavLink to="/favorites" onClick={closeMenu}>
