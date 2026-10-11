@@ -24,8 +24,7 @@ export default function Categories() {
         const data = await response.json();
 
         setCategories(data.categories || []);
-      } catch (error) {
-        console.error("Categories error:", error);
+      } catch {
         setError("Unable to load categories.");
       } finally {
         setLoading(false);
@@ -43,6 +42,23 @@ export default function Categories() {
           <h1>Meal categories</h1>
         </header>
         <p>Loading categories...</p>
+      <main className="container category-page">
+        <section className="category-header">
+          <p className="category-eyebrow">
+            EXPLORE GLOBAL TASTES
+          </p>
+
+          <h1>Meal Categories</h1>
+
+          <p className="category-description">
+            Explore meals by category and discover something
+            delicious to prepare.
+          </p>
+        </section>
+
+        <p className="category-message">
+          Loading categories...
+        </p>
       </main>
     );
   }
@@ -55,6 +71,23 @@ export default function Categories() {
           <h1>Meal categories</h1>
         </header>
         <p>{error}</p>
+      <main className="container category-page">
+        <section className="category-header">
+          <p className="category-eyebrow">
+            EXPLORE GLOBAL TASTES
+          </p>
+
+          <h1>Meal Categories</h1>
+
+          <p className="category-description">
+            Explore meals by category and discover something
+            delicious to prepare.
+          </p>
+        </section>
+
+        <p className="category-message" role="alert">
+          {error}
+        </p>
       </main>
     );
   }
@@ -66,6 +99,19 @@ export default function Categories() {
         <h1>Meal categories</h1>
         <p>From quick breakfasts to special-occasion desserts, find recipes by what you’re craving.</p>
       </header>
+    <main className="container category-page">
+      <section className="category-header">
+        <p className="category-eyebrow">
+          EXPLORE GLOBAL TASTES
+        </p>
+
+        <h1>Meal Categories</h1>
+
+        <p className="category-description">
+          Explore meals by category and discover something
+          delicious to prepare.
+        </p>
+      </section>
 
       <div className="category-grid">
         {categories.map((category) => (

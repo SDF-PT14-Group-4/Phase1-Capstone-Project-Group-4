@@ -1,0 +1,341 @@
+/* =================================
+   Meal Details Page
+   ================================= */
+
+.meal-details-page {
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-4xl);
+}
+
+.meal-details-back {
+  display: inline-block;
+  margin-bottom: var(--space-xl);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.meal-details-back:hover {
+  text-decoration: underline;
+}
+
+
+/* =================================
+   Hero
+   ================================= */
+
+.meal-details-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--space-3xl);
+  align-items: center;
+}
+
+.meal-details-image {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.meal-details-image img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.meal-details-intro h1 {
+  margin-bottom: var(--space-lg);
+  font-size: var(--text-5xl);
+  line-height: 1.05;
+}
+
+/* =================================
+   Recipe Title + Favorite
+   ================================= */
+
+.meal-details-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+.meal-details-title-row h1 {
+  flex: 1;
+}
+
+.meal-details-favorite {
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  width: 3rem;
+  height: 3rem;
+
+  padding: 0;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+
+  background: var(--color-surface);
+  color: var(--color-primary);
+
+  font-size: var(--text-xl);
+
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.meal-details-favorite:hover {
+  background: var(--color-muted);
+  transform: translateY(-2px);
+}
+
+.meal-details-favorite.active {
+  background: var(--color-secondary);
+  color: var(--color-text-light);
+  border-color: var(--color-secondary);
+}
+
+.meal-details-eyebrow {
+  margin-bottom: var(--space-sm);
+  color: var(--color-secondary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+
+/* =================================
+   Meal Metadata
+   ================================= */
+
+.meal-details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.meal-details-meta span {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  background: var(--color-muted);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.meal-details-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.meal-details-tags span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+
+/* =================================
+   Sections
+   ================================= */
+
+.meal-details-section {
+  margin-top: var(--space-4xl);
+}
+
+.meal-details-section-heading {
+  margin-bottom: var(--space-xl);
+}
+
+.meal-details-section-heading h2 {
+  margin-bottom: 0;
+  font-size: var(--text-3xl);
+}
+
+
+/* =================================
+   Ingredients
+   ================================= */
+
+.ingredients-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ingredient-name {
+  font-weight: 600;
+}
+
+.ingredient-measure {
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+
+/* =================================
+   Instructions
+   ================================= */
+
+.instructions {
+  max-width: var(--content-width);
+}
+
+.instruction-step {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.instruction-number {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.instruction-step p {
+  margin: 0;
+  line-height: 1.8;
+}
+
+
+/* =================================
+   Basket
+   ================================= */
+
+.basket-section {
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.basket-form label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+}
+
+.basket-input-row {
+  display: flex;
+  gap: var(--space-sm);
+  max-width: 600px;
+}
+
+.basket-input-row input {
+  flex: 1;
+}
+
+.basket-message {
+  margin-top: var(--space-md);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+
+/* =================================
+   Video
+   ================================= */
+
+.video-link {
+  display: inline-block;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  font-weight: 600;
+}
+
+.video-link:hover {
+  color: var(--color-text-light);
+  background: var(--color-secondary);
+}
+
+
+/* =================================
+   Messages
+   ================================= */
+
+.meal-details-message {
+  margin-top: var(--space-3xl);
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.meal-details-message h1 {
+  margin-bottom: var(--space-md);
+}
+
+
+/* =================================
+   Responsive
+   ================================= */
+
+@media (max-width: 800px) {
+  .meal-details-hero {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+
+  .meal-details-intro h1 {
+    font-size: var(--text-4xl);
+  }
+
+  .ingredients-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .meal-details-page {
+    padding-top: var(--space-md);
+  }
+
+  .meal-details-hero {
+    gap: var(--space-lg);
+  }
+
+  .meal-details-section {
+    margin-top: var(--space-3xl);
+  }
+
+  .basket-input-row {
+    flex-direction: column;
+  }
+
+  .basket-input-row button {
+    width: 100%;
+  }
+
+  .meal-details-title-row {
+  align-items: center;
+}
+
+.meal-details-favorite {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+}

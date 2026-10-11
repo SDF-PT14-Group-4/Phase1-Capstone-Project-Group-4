@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
 import "./Planner.css";
 
 function Planner() {
-  const { planner, addMeal, removeMeal } = usePlanner();
+  const {
+  planner,
+  addMeal,
+  removeMeal,
+  clearDay,
+} = usePlanner();
 
   const [query, setQuery] = useState("");
   const [meals, setMeals] = useState([]);
@@ -151,12 +157,24 @@ function Planner() {
           {days.map((day) => (
             <section className="day-plan" key={day}>
               <div className="day-plan-header">
-                <h3>{formatDay(day)}</h3>
-                <span>
-                  {planner[day].length}{" "}
-                  {planner[day].length === 1 ? "meal" : "meals"}
-                </span>
-              </div>
+  <div>
+    <h3>{formatDay(day)}</h3>
+    <span>
+      {planner[day].length}{" "}
+      {planner[day].length === 1 ? "meal" : "meals"}
+    </span>
+  </div>
+
+  {planner[day].length > 0 && (
+    <button
+      type="button"
+      className="clear-day-button"
+      onClick={() => clearDay(day)}
+    >
+      Clear Day
+    </button>
+  )}
+</div>
 
               {planner[day].length === 0 ? (
                 <p className="planner-empty">
@@ -166,27 +184,34 @@ function Planner() {
                 <div className="planned-meals">
                   {planner[day].map((meal) => (
                     <article
-                      className="planned-meal"
-                      key={meal.idMeal}
-                    >
-                      <img
-                        src={meal.strMealThumb}
-                        alt={meal.strMeal}
-                      />
+  className="planned-meal"
+  key={meal.idMeal}
+>
+  <Link
+    to={`/meal/${meal.idMeal}`}
+    className="planned-meal-link"
+  >
+    <img
+      src={meal.strMealThumb}
+      alt={meal.strMeal}
+    />
 
-                      <div className="planned-meal-info">
-                        <h4>{meal.strMeal}</h4>
+    <div className="planned-meal-info">
+      <h4>{meal.strMeal}</h4>
+      <span>View recipe →</span>
+    </div>
+  </Link>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeMeal(day, meal.idMeal)
-                          }
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </article>
+  <button
+    type="button"
+    className="planned-meal-remove"
+    onClick={() =>
+      removeMeal(day, meal.idMeal)
+    }
+  >
+    Remove
+  </button>
+</article>
                   ))}
                 </div>
               )}
