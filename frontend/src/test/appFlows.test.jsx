@@ -165,11 +165,11 @@ expect(
   screen.getByText("1 lb", { selector: ".ingredient-measure" })
 ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
-  "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772",
-  expect.objectContaining({
-    signal: expect.any(AbortSignal),
-  }),
-);
+      "/api/meals/52772",
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
+    );
   });
 
   it("adds a category meal to favorites", async () => {
@@ -273,7 +273,8 @@ it("loads a valid random meal recommendation", async () => {
       await screen.findByRole("heading", { name: MEAL.strMeal })
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://www.themealdb.com/api/json/v1/1/random.php"
+      "/api/meals/random",
+      expect.anything(),
     );
     expect(
       screen.getByRole("link", { name: /view full recipe/i })
