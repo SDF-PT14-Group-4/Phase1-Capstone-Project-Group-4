@@ -103,6 +103,43 @@ def test_basket_quantities_totals_and_validation(client, auth_headers):
     assert client.get("/api/me/basket", headers=auth_headers).json["total"] == 0
 
 
+def test_planner_and_basket_are_isolated_between_accounts(client, auth_headers):
+    meal = {"mealId": "52772", "name": "Teriyaki Chicken", "price": "10.50"}
+    assert client.post(
+        "/api/me/planner",
+        json={"day": "monday", "meal": meal},
+        headers=auth_headers,
+    ).status_code == 201
+    assert client.post("/api/me/basket", json=meal, headers=auth_headers).status_code == 201
+
+    second = client.post(
+        "/api/auth/register",
+        json={"email": "second@example.com", "password": "correct horse battery"},
+    )
+    assert second.status_code == 201
+    second_headers = {"Authorization": f"Bearer {second.json['accessToken']}"}
+
+    assert client.get("/api/me/planner", headers=second_headers).json["planner"]["monday"] == []
+    assert client.get("/api/me/basket", headers=second_headers).json["items"] == []
+    assert client.delete(
+        "/api/me/planner/monday/52772", headers=second_headers
+    ).status_code == 404
+    assert client.patch(
+        "/api/me/basket/52772",
+        json={"quantity": 3},
+        headers=second_headers,
+    ).status_code == 404
+    assert client.delete(
+        "/api/me/basket/52772", headers=second_headers
+    ).status_code == 404
+    assert client.delete("/api/me/basket", headers=second_headers).status_code == 204
+
+    assert len(client.get("/api/me/planner", headers=auth_headers).json["planner"]["monday"]) == 1
+    basket = client.get("/api/me/basket", headers=auth_headers).json
+    assert basket["items"][0]["mealId"] == "52772"
+    assert basket["items"][0]["quantity"] == 1
+
+
 def test_meal_discovery_forwards_requests_to_themealdb(client):
     payload = {"meals": [{"idMeal": "52772", "strMeal": "Teriyaki Chicken"}]}
     with patch("app.routes.get_mealdb", return_value=payload) as upstream:
