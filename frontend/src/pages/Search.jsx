@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MealGrid from "../components/meal/MealGrid";
-import { searchMeals } from "../services/mealService";
+import { searchMeals } from "../services/backendMealService";
 import "./Discovery.css";
 
 function Search() {

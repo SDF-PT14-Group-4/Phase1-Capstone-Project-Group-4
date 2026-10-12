@@ -1,3 +1,4 @@
+import { getMealById } from "../services/backendMealService";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useFavorites } from "../hooks/useFavorites.js";
@@ -24,24 +25,15 @@ function MealDetails() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${encodeURIComponent(id)}`,
-          { signal: controller.signal }
-        );
+        const foundMeal = await getMealById(id, controller.signal);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch meal details.");
-        }
-
-        const data = await response.json();
-
-        if (!data.meals || data.meals.length === 0) {
+        if (!foundMeal) {
           setError("Meal not found.");
           setMeal(null);
           return;
         }
 
-        setMeal(data.meals[0]);
+        setMeal(foundMeal);
       } catch (err) {
         if (err.name !== "AbortError") {
           setError("Unable to fetch meal details right now.");

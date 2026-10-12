@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import MealGrid from "../components/meal/MealGrid";
+import { getMealsByCategory } from "../services/backendMealService";
 import "./Discovery.css";
-
-const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
 export default function CategoryMeals() {
   const { category } = useParams();
@@ -18,16 +17,8 @@ export default function CategoryMeals() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${BASE_URL}/filter.php?c=${encodeURIComponent(decodedCategory)}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load category meals.");
-        }
-
-        const data = await response.json();
-        setMeals(data.meals || []);
+        const results = await getMealsByCategory(decodedCategory);
+        setMeals(results);
       } catch (error) {
         console.error("Category meals error:", error);
         setError("Unable to load category meals.");
@@ -38,6 +29,10 @@ export default function CategoryMeals() {
 
     if (decodedCategory) {
       loadMeals();
+    } else {
+      setMeals([]);
+      setLoading(false);
+      setError("");
     }
   }, [decodedCategory]);
 
@@ -52,7 +47,7 @@ export default function CategoryMeals() {
         <p>Loading {decodedCategory} meals...</p>
       )}
 
-      {displayedError && <p>{displayedError}</p>}
+      {displayedError && <p role="alert">{displayedError}</p>}
 
       {!loading && !displayedError && <MealGrid meals={meals} />}
     </main>
