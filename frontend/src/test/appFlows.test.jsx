@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { FavoritesProvider } from "../context/FavoritesContext";
-import { PlannerContext } from "../context/plannerContext.js";
+import { PlannerContext } from "../context/planner-context.js";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { BasketProvider } from "../context/BasketContext";
 

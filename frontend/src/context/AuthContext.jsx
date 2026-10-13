@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AuthContext } from "./authContext.js";
+import { AuthContext } from "./auth-context.js";
 import { authenticate, AUTH_STORAGE_KEY } from "../services/authService";
 
 function readStoredAuth() {
