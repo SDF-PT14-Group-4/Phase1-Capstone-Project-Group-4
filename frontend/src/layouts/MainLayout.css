@@ -82,6 +82,29 @@
   font-weight: 600;
 }
 
+.nav-account {
+  max-width: 15rem;
+  overflow: hidden;
+  color: rgba(245, 244, 240, 0.82);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-links .nav-auth-button {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(245, 244, 240, 0.35);
+  background: transparent;
+  font-size: var(--text-xs);
+}
+
+.nav-links .nav-auth-button:hover {
+  border-color: var(--color-secondary);
+  background: rgba(138, 154, 134, 0.15);
+  box-shadow: none;
+  transform: none;
+}
+
 /* Hamburger */
 
 .menu-toggle {
@@ -218,6 +241,18 @@
     width: 100%;
     padding: 0.75rem 1rem;
     text-align: center;
+    font-size: var(--text-sm);
+  }
+
+  .nav-account {
+    max-width: 100%;
+    padding: 0.5rem 1rem;
+    text-align: center;
+  }
+
+  .nav-links .nav-auth-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
     font-size: var(--text-sm);
   }
 }

@@ -95,7 +95,9 @@ http://localhost:5173/
 
 The backend exposes meal discovery endpoints and JWT-protected account, favorites, weekly planner, and basket endpoints. Its setup, PostgreSQL configuration, API contract, and tests are documented in [backend/README.md](./backend/README.md).
 
-The current React UI still calls TheMealDB directly and keeps user selections in browser storage; connecting it to the new authenticated API is a separate frontend integration step.
+Registration and login are connected to the Flask API; successful authentication stores only the returned JWT and account profile in browser storage. The current meal selections are still stored locally in the browser.
+
+For local development, run the Flask API at `http://127.0.0.1:5000` and set `VITE_API_BASE_URL` in the frontend environment if the API is hosted elsewhere. The default API base URL is `http://127.0.0.1:5000/api`; configure the backend's `FRONTEND_ORIGIN` to match the frontend origin.
 
 ## Available scripts
 

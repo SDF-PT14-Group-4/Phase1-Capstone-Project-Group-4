@@ -2,13 +2,16 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import MainLayout from '../../layouts/MainLayout';
+import { AuthProvider } from '../../context/AuthContext';
 
 describe('MainLayout', () => {
   it('renders the app navigation and branding', () => {
     render(
-      <MemoryRouter>
-        <MainLayout />
-      </MemoryRouter>
+      <AuthProvider>
+        <MemoryRouter>
+          <MainLayout />
+        </MemoryRouter>
+      </AuthProvider>
     );
 
     expect(screen.getByRole('link', { name: /globaltaste/i })).toBeInTheDocument();
