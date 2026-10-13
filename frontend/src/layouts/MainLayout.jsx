@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./MainLayout.css";
 
 function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   function closeMenu() {
     setMenuOpen(false);
@@ -65,6 +67,31 @@ function MainLayout() {
             <NavLink to="/surprise" onClick={closeMenu}>
               Surprise Me
             </NavLink>
+
+            {isAuthenticated ? (
+              <>
+                <span className="nav-account">{user.email}</span>
+                <button
+                  type="button"
+                  className="nav-auth-button"
+                  onClick={() => {
+                    logout();
+                    closeMenu();
+                  }}
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" onClick={closeMenu}>
+                  Log in
+                </NavLink>
+                <NavLink to="/register" onClick={closeMenu}>
+                  Register
+                </NavLink>
+              </>
+            )}
           </div>
         </nav>
       </header>

@@ -9,6 +9,11 @@ npm install
 npm run dev
 ```
 
+Registration and login use the Flask API. By default, the frontend sends auth
+requests to `http://127.0.0.1:5000/api`; set `VITE_API_BASE_URL` to a different
+API base URL when needed (for example, `https://api.example.com/api`). Configure
+the backend's `FRONTEND_ORIGIN` to the origin serving this frontend.
+
 ## Project scripts
 
 ```bash
