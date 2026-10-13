@@ -27,13 +27,11 @@ export default function CuisineMeals() {
       }
     }
 
-    if (decodedCuisine) {
-      loadMeals();
-    } else {
-      setMeals([]);
-      setLoading(false);
-      setError("");
+    if (!decodedCuisine) {
+      return;
     }
+
+    loadMeals();
   }, [decodedCuisine]);
 
   const selectionError = decodedCuisine ? "" : "No cuisine was selected.";
