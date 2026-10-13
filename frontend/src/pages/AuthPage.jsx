@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import "./Auth.css";
 
 export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
   const { isAuthenticated, login, register } = useAuth();
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -34,7 +33,6 @@ export default function AuthPage({ mode }) {
       } else {
         await login(credentials);
       }
-      navigate("/", { replace: true });
     } catch (requestError) {
       setError(requestError.message || "Unable to sign in. Please try again.");
     } finally {
