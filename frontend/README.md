@@ -14,6 +14,10 @@ requests to `http://127.0.0.1:5000/api`; set `VITE_API_BASE_URL` to a different
 API base URL when needed (for example, `https://api.example.com/api`). Configure
 the backend's `FRONTEND_ORIGIN` to the origin serving this frontend.
 
+Signed-in users load and update basket items, quantities, and totals through the
+authenticated basket API. Guests use a separate local-only basket; signing in
+loads the account basket.
+
 ## Project scripts
 
 ```bash
