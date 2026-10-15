@@ -6,7 +6,7 @@ import { useBasket } from "../hooks/useBasket.js";
 function MealDetails() {
   const { id } = useParams();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToBasket } = useBasket();
+  const { addToBasket, error: basketError } = useBasket();
 
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -104,22 +104,26 @@ function MealDetails() {
     }
   }
 
-  function handleAddToBasket() {
+  async function handleAddToBasket() {
     if (!price || !Number.isFinite(Number(price)) || Number(price) <= 0) {
       setMessage("Please enter a valid price.");
       return;
     }
 
-    addToBasket(
+    const added = await addToBasket(
       {
         id: meal.idMeal,
         name: meal.strMeal,
         image: meal.strMealThumb,
+        category: meal.strCategory,
+        cuisine: meal.strArea,
       },
       Number(price)
     );
 
-    setMessage(`${meal.strMeal} added to basket.`);
+    if (added) {
+      setMessage(`${meal.strMeal} added to basket.`);
+    }
   }
 
   return (
@@ -237,6 +241,11 @@ function MealDetails() {
             {message && (
               <p className="basket-message" role="status">
                 {message}
+              </p>
+            )}
+            {basketError && (
+              <p className="basket-message" role="alert">
+                {basketError}
               </p>
             )}
           </div>
