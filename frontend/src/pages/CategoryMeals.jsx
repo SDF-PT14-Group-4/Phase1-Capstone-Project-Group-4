@@ -27,13 +27,11 @@ export default function CategoryMeals() {
       }
     }
 
-    if (decodedCategory) {
-      loadMeals();
-    } else {
-      setMeals([]);
-      setLoading(false);
-      setError("");
+    if (!decodedCategory) {
+      return;
     }
+
+    loadMeals();
   }, [decodedCategory]);
 
   const selectionError = decodedCategory ? "" : "No category was selected.";
