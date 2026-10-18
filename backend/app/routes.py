@@ -224,6 +224,18 @@ def remove_planned_meal(day, meal_id):
     return "", 204
 
 
+@api.delete("/me/planner/<string:day>")
+@jwt_required()
+def clear_planned_day(day):
+    if day not in WEEKDAYS:
+        return error("A valid weekday is required.", "INVALID_DAY", 400)
+    db.session.query(PlannedMeal).filter_by(
+        user_id=current_user().id, day=day
+    ).delete(synchronize_session=False)
+    db.session.commit()
+    return "", 204
+
+
 @api.get("/me/basket")
 @jwt_required()
 def get_basket():

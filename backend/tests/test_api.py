@@ -1,6 +1,23 @@
 from unittest.mock import patch
 
+from app import create_app
 from app.mealdb import MealServiceError
+
+
+def test_postgres_database_urls_use_psycopg_three():
+    for database_url in (
+        "postgres://user:password@db.example.test/globaltaste",
+        "postgresql://user:password@db.example.test/globaltaste",
+    ):
+        app = create_app({
+            "TESTING": True,
+            "SECRET_KEY": "test-secret-key-that-is-long-enough",
+            "JWT_SECRET_KEY": "test-jwt-secret-key-that-is-long-enough",
+            "SQLALCHEMY_DATABASE_URI": database_url,
+        })
+        assert app.config["SQLALCHEMY_DATABASE_URI"] == (
+            "postgresql+psycopg://user:password@db.example.test/globaltaste"
+        )
 
 
 def test_health(client):
@@ -82,6 +99,29 @@ def test_planner_validates_days_deduplicates_and_removes(client, auth_headers):
     assert len(planner["monday"]) == 1
     assert planner["tuesday"] == []
     assert client.delete("/api/me/planner/monday/52772", headers=auth_headers).status_code == 204
+
+
+def test_planner_can_clear_a_day(client, auth_headers):
+    for meal_id in ("52772", "52804"):
+        client.post(
+            "/api/me/planner",
+            json={
+                "day": "monday",
+                "meal": {"mealId": meal_id, "name": f"Meal {meal_id}"},
+            },
+            headers=auth_headers,
+        )
+    client.post(
+        "/api/me/planner",
+        json={"day": "tuesday", "meal": {"mealId": "52805", "name": "Tuesday meal"}},
+        headers=auth_headers,
+    )
+
+    assert client.delete("/api/me/planner/monday", headers=auth_headers).status_code == 204
+    planner = client.get("/api/me/planner", headers=auth_headers).json["planner"]
+    assert planner["monday"] == []
+    assert len(planner["tuesday"]) == 1
+    assert client.delete("/api/me/planner/funday", headers=auth_headers).status_code == 400
 
 
 def test_basket_quantities_totals_and_validation(client, auth_headers):

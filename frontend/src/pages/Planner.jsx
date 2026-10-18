@@ -6,11 +6,13 @@ import "./Planner.css";
 
 function Planner() {
   const {
-  planner,
-  addMeal,
-  removeMeal,
-  clearDay,
-} = usePlanner();
+    planner,
+    addMeal,
+    removeMeal,
+    clearDay,
+    loading: plannerLoading,
+    loadError: plannerLoadError,
+  } = usePlanner();
 
   const [query, setQuery] = useState("");
   const [meals, setMeals] = useState([]);
@@ -153,7 +155,11 @@ function Planner() {
           <h2>Your Weekly Plan</h2>
         </div>
 
-        <div className="weekly-plan">
+        {plannerLoading ? (
+          <p role="status">Loading your weekly plan...</p>
+        ) : plannerLoadError ? (
+          <p role="alert">{plannerLoadError}</p>
+        ) : <div className="weekly-plan">
           {days.map((day) => (
             <section className="day-plan" key={day}>
               <div className="day-plan-header">
@@ -217,7 +223,7 @@ function Planner() {
               )}
             </section>
           ))}
-        </div>
+        </div>}
       </section>
     </main>
   );

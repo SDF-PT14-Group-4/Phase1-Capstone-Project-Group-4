@@ -262,16 +262,46 @@ This test suite covers the core navigation and user-flow checks for the GlobalTa
   - The app shows a not-found or error message.
   - The application remains stable and interactive.
 
+### TC-26: Signed-in favorites persist per account
+- ID: TC-26
+- Title: Favorites load, save, and remove through the account API
+- Steps:
+  1. Sign in and save a meal as a favorite.
+  2. Reload the favorites page.
+- Expected result:
+  - The favorite is restored from the signed-in account.
+  - Removing the favorite updates the account and the page.
+
+### TC-27: Signed-in weekly plans persist per account
+- ID: TC-27
+- Title: Planner entries load and save through the account API
+- Steps:
+  1. Sign in and add a meal to a weekday.
+  2. Reload the planner.
+- Expected result:
+  - The planned meal is restored from the signed-in account.
+
+### TC-28: Clearing a planned weekday preserves other days
+- ID: TC-28
+- Title: Clear one day from the weekly plan
+- Steps:
+  1. Plan meals on at least two weekdays.
+  2. Clear one weekday.
+- Expected result:
+  - The selected weekday is empty.
+  - Planned meals on other days remain.
+
 ## 5. Suggested Acceptance Criteria
 - All main navigation links work correctly.
 - The app displays a consistent layout across all routes.
 - Meal detail pages render dynamic content using the URL parameter.
 - Search, favorites, basket, and surprise flows each show meaningful empty states and valid results.
+- Signed-in favorites, planner entries, and basket items persist per account.
 - The UI handles invalid routes and missing data without crashing.
 
 ## 6. Priority Summary
 - High priority: TC-01, TC-02, TC-03, TC-04, TC-05, TC-10, TC-12, TC-16, TC-19
-- Medium priority: TC-06, TC-07, TC-08, TC-09, TC-15, TC-17, TC-18, TC-20
+- Medium priority: TC-06, TC-07, TC-08, TC-09, TC-15, TC-17, TC-18, TC-20, TC-28
 - Low priority but important: TC-21 to TC-25
 
 ## 7. Notes
@@ -279,11 +309,15 @@ This test suite is based on the current screen structure and app routes in the p
 
 ## 8. Automated execution and coverage
 
-Vitest and Testing Library automate the app flows in `frontend/src/test/appFlows.test.jsx`, plus the focused tests under `frontend/src/pages/__tests__/` and `frontend/src/test/`. Run the suite from `frontend/`:
+Vitest and Testing Library automate the app flows in `frontend/src/test/appFlows.test.jsx`, account persistence in `frontend/src/test/accountDataFlows.test.jsx`, and focused service/component tests under `frontend/src/pages/__tests__/` and `frontend/src/test/`. Pytest covers account API ownership and persistence. Run the suites from `frontend/` and `backend/`:
 
 ```bash
 npm test
 npm run test:coverage
 ```
 
-The coverage command reports statement, branch, function, and line coverage and writes HTML/LCOV output to `frontend/coverage/`. CI runs this command and requires at least 45% statements, 60% branches, 50% functions, and 45% lines. `TEST_MATRIX.csv` records automated outcomes; TC-14 remains a manual check because a unit test cannot establish that the production web server correctly serves the app shell on a refreshed deep link.
+```bash
+pytest
+```
+
+The coverage command reports statement, branch, function, and line coverage and writes HTML/LCOV output to `frontend/coverage/`. CI runs this command and requires at least 45% statements, 60% branches, 50% functions, and 45% lines. `TEST_MATRIX.csv` records automated outcomes; browser/deployment checks remain manual.

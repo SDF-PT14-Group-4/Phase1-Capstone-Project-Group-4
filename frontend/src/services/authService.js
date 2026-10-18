@@ -1,6 +1,4 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api"
-).replace(/\/+$/, "");
+import { requireApiBaseUrl } from "./apiConfig.js";
 
 const AUTH_STORAGE_KEY = "globaltaste.auth";
 
@@ -16,9 +14,16 @@ export class AuthApiError extends Error {
 export { AUTH_STORAGE_KEY };
 
 export async function authenticate(path, credentials) {
+  let apiBaseUrl;
+  try {
+    apiBaseUrl = requireApiBaseUrl();
+  } catch (error) {
+    throw new AuthApiError(error.message, "API_NOT_CONFIGURED");
+  }
+
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}/auth/${path}`, {
+    response = await fetch(`${apiBaseUrl}/auth/${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),

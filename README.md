@@ -95,9 +95,20 @@ http://localhost:5173/
 
 The backend exposes meal discovery endpoints and JWT-protected account, favorites, weekly planner, and basket endpoints. Its setup, PostgreSQL configuration, API contract, and tests are documented in [backend/README.md](./backend/README.md).
 
-Registration and login are connected to the Flask API; successful authentication stores only the returned JWT and account profile in browser storage. The current meal selections are still stored locally in the browser.
+Registration and login use the Flask API. Guest favorites, planner entries, and basket items stay in browser storage. When signed in, favorites, planner entries, and basket items are loaded from and saved to the account API, so they follow the account across browsers.
 
-For local development, run the Flask API at `http://127.0.0.1:5000` and set `VITE_API_BASE_URL` in the frontend environment if the API is hosted elsewhere. The default API base URL is `http://127.0.0.1:5000/api`; configure the backend's `FRONTEND_ORIGIN` to match the frontend origin.
+For local development, run the Flask API at `http://127.0.0.1:5000`; the frontend uses `http://127.0.0.1:5000/api` by default. Copy [frontend/.env.example](./frontend/.env.example) to `frontend/.env.local` and change `VITE_API_BASE_URL` when the API runs elsewhere.
+
+### Production deployment
+
+The frontend is deployed to Netlify. [render.yaml](./render.yaml) defines the Flask API and a private PostgreSQL database on Render. To create them, connect this repository in Render and apply the Blueprint:
+
+1. In Render, create a Blueprint instance from this repository and review the services before confirming. The blueprint generates unique backend secrets and runs database migrations before starting the API.
+2. The included API and database plans are free for a demo. **The API may spin down after 15 minutes of inactivity, and its first request after that can take about a minute. Render free PostgreSQL databases expire 30 days after creation and are eventually deleted if not upgraded.** These plans are not suitable for durable production data; see [Render's free-instance limitations](https://render.com/docs/free).
+3. After Render provisions the API, copy its public service URL and set the GitHub Actions repository variable `VITE_API_BASE_URL` to that URL ending in `/api`.
+4. Configure `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as a repository secret. CI builds the frontend with `VITE_API_BASE_URL` and deploys it to Netlify.
+
+Render and Netlify resources are not provisioned automatically by a code change; the Blueprint must be created in the Render dashboard and the repository variables/secrets must be configured there.
 
 ## Available scripts
 
@@ -126,7 +137,7 @@ The coverage command reports statement, branch, function, and line coverage in t
 
 GitHub Actions runs the test suite, ESLint, and a production build for pull requests and pushes to `main`. Successful pushes to `main` also deploy the build to Netlify when deployment credentials are configured.
 
-To enable production deploys, add `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as an Actions secret in the GitHub repository settings. Without the site ID variable, CI still runs but the deploy step is skipped.
+To enable production deploys, add `NETLIFY_SITE_ID` and `VITE_API_BASE_URL` as repository variables and `NETLIFY_AUTH_TOKEN` as an Actions secret in the GitHub repository settings. Without the site ID variable, CI still runs but the deploy step is skipped.
 
 ## Notes
 

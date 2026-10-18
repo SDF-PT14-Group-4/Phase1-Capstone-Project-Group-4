@@ -31,6 +31,17 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
+    database_url = app.config["SQLALCHEMY_DATABASE_URI"]
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace(
+            "postgres://", "postgresql+psycopg://", 1
+        )
+    elif database_url.startswith("postgresql://"):
+        database_url = database_url.replace(
+            "postgresql://", "postgresql+psycopg://", 1
+        )
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)

@@ -1,6 +1,4 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api"
-).replace(/\/+$/, "");
+import { requireApiBaseUrl } from "./apiConfig.js";
 
 export class BasketApiError extends Error {
   constructor(message, code = "BASKET_REQUEST_FAILED", status = 0) {
@@ -12,9 +10,16 @@ export class BasketApiError extends Error {
 }
 
 async function requestBasket(path, accessToken, options = {}) {
+  let apiBaseUrl;
+  try {
+    apiBaseUrl = requireApiBaseUrl();
+  } catch (error) {
+    throw new BasketApiError(error.message, "API_NOT_CONFIGURED");
+  }
+
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${apiBaseUrl}${path}`, {
       ...options,
       headers: {
         Authorization: `Bearer ${accessToken}`,

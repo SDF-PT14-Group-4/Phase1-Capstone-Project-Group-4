@@ -28,6 +28,25 @@ flask --app app:create_app run --debug
 
 The API listens on `http://127.0.0.1:5000`. Set `FRONTEND_ORIGIN` to the exact frontend origin allowed to call it. Production deployments must use strong, unique secrets, HTTPS, and reviewed database migrations. `flask --app app:create_app init-db` is also available for disposable local databases but must not be used in production.
 
+## Production hosting
+
+The repository does not provision a backend host or PostgreSQL database. On a Linux Python host, install `requirements.txt`, set `DATABASE_URL`, `SECRET_KEY`, `JWT_SECRET_KEY`, and `FRONTEND_ORIGIN`, then apply migrations and start the WSGI app:
+
+```bash
+flask --app app:create_app db upgrade
+gunicorn --bind "0.0.0.0:${PORT:-8000}" 'app:create_app()'
+```
+
+The app accepts standard `postgres://` and `postgresql://` database URLs and
+normalizes them to the installed Psycopg 3 driver. Set `FRONTEND_ORIGIN` to the
+exact deployed frontend origin and use HTTPS and unique production secrets.
+
+The repository's [Render Blueprint](../render.yaml) automates this configuration
+for the Netlify frontend. It uses free plans for a demo; Render free PostgreSQL
+databases expire after 30 days, and free web services spin down when idle. These
+plans are not suitable for durable production data; upgrade the database before
+relying on account persistence. See [Render's free-instance limitations](https://render.com/docs/free).
+
 Run tests with:
 
 ```bash
@@ -56,6 +75,7 @@ All errors use `{"error":{"code":"...","message":"..."}}`. Meal discovery respon
 | GET, POST | `/api/me/favorites` | List or save a favorite meal |
 | DELETE | `/api/me/favorites/<meal_id>` | Remove a favorite |
 | GET, POST | `/api/me/planner` | Read the weekly plan or add a meal to a day |
+| DELETE | `/api/me/planner/<day>` | Clear all planned meals for a weekday |
 | DELETE | `/api/me/planner/<day>/<meal_id>` | Remove a planned meal |
 | GET, POST, DELETE | `/api/me/basket` | Read basket, add an item, or clear it |
 | PATCH, DELETE | `/api/me/basket/<meal_id>` | Set quantity or remove an item |

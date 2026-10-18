@@ -59,6 +59,8 @@ jobs:
       - name: Build production bundle
         run: npm run build
         working-directory: frontend
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
       - name: Deploy to Netlify
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.NETLIFY_SITE_ID != ''
@@ -67,8 +69,13 @@ jobs:
             echo "::error::Add NETLIFY_AUTH_TOKEN as a GitHub Actions secret."
             exit 1
           fi
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::Add VITE_API_BASE_URL as a GitHub Actions repository variable."
+            exit 1
+          fi
           npx --yes netlify-cli deploy --prod --dir dist --site "$NETLIFY_SITE_ID"
         working-directory: frontend
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}

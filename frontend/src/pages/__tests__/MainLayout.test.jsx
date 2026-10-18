@@ -3,14 +3,20 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import MainLayout from '../../layouts/MainLayout';
 import { AuthProvider } from '../../context/AuthContext';
+import { FavoritesProvider } from '../../context/FavoritesContext';
+import { PlannerProvider } from '../../context/PlannerContext';
 
 describe('MainLayout', () => {
   it('renders the app navigation and branding', () => {
     render(
       <AuthProvider>
-        <MemoryRouter>
-          <MainLayout />
-        </MemoryRouter>
+        <FavoritesProvider>
+          <PlannerProvider>
+            <MemoryRouter>
+              <MainLayout />
+            </MemoryRouter>
+          </PlannerProvider>
+        </FavoritesProvider>
       </AuthProvider>
     );
 

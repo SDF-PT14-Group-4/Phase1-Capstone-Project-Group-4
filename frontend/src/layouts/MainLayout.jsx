@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useFavorites } from "../hooks/useFavorites.js";
+import { usePlanner } from "../hooks/usePlanner.js";
 import "./MainLayout.css";
 
 function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
+  const { error: favoritesError } = useFavorites();
+  const { error: plannerError } = usePlanner();
 
   function closeMenu() {
     setMenuOpen(false);
@@ -97,6 +101,8 @@ function MainLayout() {
       </header>
 
       <main className="page-content">
+        {favoritesError && <p role="alert">{favoritesError}</p>}
+        {plannerError && <p role="alert">{plannerError}</p>}
         <Outlet />
       </main>
 

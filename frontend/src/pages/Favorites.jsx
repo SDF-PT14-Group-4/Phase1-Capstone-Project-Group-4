@@ -2,7 +2,7 @@ import MealGrid from "../components/meal/MealGrid";
 import { useFavorites } from "../hooks/useFavorites.js";
 
 export default function Favorites() {
-  const { favorites } = useFavorites();
+  const { favorites, loading, loadError } = useFavorites();
 
   return (
     <main className="favorites-page container">
@@ -19,7 +19,11 @@ export default function Favorites() {
         </p>
       </section>
 
-      {favorites.length === 0 ? (
+      {loading ? (
+        <p role="status">Loading your favorites...</p>
+      ) : loadError ? (
+        <p role="alert">{loadError}</p>
+      ) : favorites.length === 0 ? (
         <section className="favorites-empty">
           <h2>No favorites yet</h2>
 
