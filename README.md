@@ -105,7 +105,7 @@ The frontend is deployed to Netlify. [render.yaml](./render.yaml) defines the Fl
 
 1. In Render, create a Blueprint instance from this repository and review the services before confirming. The blueprint generates unique backend secrets and runs database migrations before starting the API.
 2. The included API and database plans are free for a demo. **The API may spin down after 15 minutes of inactivity, and its first request after that can take about a minute. Render free PostgreSQL databases expire 30 days after creation and are eventually deleted if not upgraded.** These plans are not suitable for durable production data; see [Render's free-instance limitations](https://render.com/docs/free).
-3. After Render provisions the API, copy its public service URL and set the GitHub Actions repository variable `VITE_API_BASE_URL` to that URL ending in `/api`.
+3. The deployed API is [https://globaltaste-api.onrender.com](https://globaltaste-api.onrender.com). The frontend uses `https://globaltaste-api.onrender.com/api` by default in production; set the GitHub Actions repository variable `VITE_API_BASE_URL` to a different API base URL (ending in `/api`) if you use another backend.
 4. Configure `NETLIFY_SITE_ID` as a repository variable and `NETLIFY_AUTH_TOKEN` as a repository secret. CI builds the frontend with `VITE_API_BASE_URL` and deploys it to Netlify.
 
 Render and Netlify resources are not provisioned automatically by a code change; the Blueprint must be created in the Render dashboard and the repository variables/secrets must be configured there.

@@ -15,8 +15,8 @@ API base URL when needed (for example, `https://api.example.com/api`). Configure
 the backend's `FRONTEND_ORIGIN` to the origin serving this frontend.
 
 Copy `.env.example` to `.env.local` to configure the API URL for local development.
-Production builds require `VITE_API_BASE_URL`; without it, account API actions
-show a configuration error instead of calling the visitor's localhost.
+Production builds use `https://globaltaste-api.onrender.com/api` by default.
+Set `VITE_API_BASE_URL` at build time to override it when deploying another API.
 
 Signed-in users load and update favorites, weekly planner entries, and basket
 items through the authenticated account API. Guest selections remain local to
