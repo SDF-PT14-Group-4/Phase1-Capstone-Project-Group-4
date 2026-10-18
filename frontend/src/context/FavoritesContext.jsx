@@ -8,6 +8,11 @@ import {
   removeFavorite as removeFavoriteRequest,
 } from "../services/accountMealService.js";
 import { readStorage, writeStorage } from "../utils/storage.js";
+import {
+  useEffect,
+  useState,
+} from "react";
+import { FavoritesContext } from "./favorites-context.js";
 
 function FavoritesStateProvider({ children, accessToken }) {
   const [favorites, setFavorites] = useState(() =>

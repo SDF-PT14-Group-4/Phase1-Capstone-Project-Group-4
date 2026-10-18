@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { usePlanner } from "../hooks/usePlanner.js";
@@ -10,9 +10,16 @@ function MainLayout() {
   const { isAuthenticated, user, logout } = useAuth();
   const { error: favoritesError } = useFavorites();
   const { error: plannerError } = usePlanner();
+  const navigate = useNavigate();
 
   function closeMenu() {
     setMenuOpen(false);
+  }
+
+  function handleLogout() {
+    logout();
+    closeMenu();
+    navigate("/");
   }
 
   return (
@@ -78,10 +85,7 @@ function MainLayout() {
                 <button
                   type="button"
                   className="nav-auth-button"
-                  onClick={() => {
-                    logout();
-                    closeMenu();
-                  }}
+                  onClick={handleLogout}
                 >
                   Log out
                 </button>
