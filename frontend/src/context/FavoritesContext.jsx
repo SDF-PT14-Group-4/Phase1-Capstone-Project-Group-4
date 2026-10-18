@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "./authContext.js";
-import { FavoritesContext } from "./favoritesContext.js";
+import { AuthContext } from "./auth-context.js";
+import { FavoritesContext } from "./favorites-context.js";
 import {
   AccountMealApiError,
   addFavorite as addFavoriteRequest,

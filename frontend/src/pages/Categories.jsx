@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getCategories } from "../services/backendMealService";
 import "./Discovery.css";
-
-const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -12,14 +11,10 @@ export default function Categories() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        const response = await fetch(`${BASE_URL}/categories.php`);
+        setError("");
 
-        if (!response.ok) {
-          throw new Error("Failed to load categories.");
-        }
-
-        const data = await response.json();
-        setCategories(data.categories || []);
+        const results = await getCategories();
+        setCategories(results);
       } catch (error) {
         console.error("Categories error:", error);
         setError("Unable to load categories.");
@@ -50,7 +45,7 @@ export default function Categories() {
           <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
           <h1>Meal categories</h1>
         </header>
-        <p>{error}</p>
+        <p role="alert">{error}</p>
       </main>
     );
   }

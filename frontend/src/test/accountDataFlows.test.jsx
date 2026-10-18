@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FavoritesProvider } from "../context/FavoritesContext.jsx";
-import { AuthContext } from "../context/authContext.js";
+import { AuthContext } from "../context/auth-context.js";
 import { PlannerProvider } from "../context/PlannerContext.jsx";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { usePlanner } from "../hooks/usePlanner.js";

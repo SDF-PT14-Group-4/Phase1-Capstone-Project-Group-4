@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "./authContext.js";
-import { PlannerContext } from "./plannerContext";
+import { AuthContext } from "./auth-context.js";
+import { PlannerContext } from "./planner-context.js";
 import {
   AccountMealApiError,
   addPlannedMeal,

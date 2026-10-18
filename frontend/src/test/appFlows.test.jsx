@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { FavoritesProvider } from "../context/FavoritesContext";
-import { PlannerContext } from "../context/plannerContext.js";
+import { PlannerContext } from "../context/planner-context.js";
 import { useFavorites } from "../hooks/useFavorites.js";
 
 const MEAL = {
@@ -162,11 +162,11 @@ expect(
   screen.getByText("1 lb", { selector: ".ingredient-measure" })
 ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
-  "https://www.themealdb.com/api/json/v1/1/lookup.php?i=52772",
-  expect.objectContaining({
-    signal: expect.any(AbortSignal),
-  }),
-);
+      "/api/meals/52772",
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
+    );
   });
 
   it("adds a category meal to favorites", async () => {
@@ -356,7 +356,8 @@ it("loads a valid random meal recommendation", async () => {
       await screen.findByRole("heading", { name: MEAL.strMeal })
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://www.themealdb.com/api/json/v1/1/random.php"
+      "/api/meals/random",
+      expect.anything(),
     );
     expect(
       screen.getByRole("link", { name: /view full recipe/i })
