@@ -7,7 +7,7 @@ describe('mealService', () => {
   });
 
   it('searches meals by keyword', async () => {
-    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue({
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       json: async () => ({ meals: [{ idMeal: '52772', strMeal: 'Teriyaki Chicken' }] }),
     });
@@ -22,7 +22,7 @@ describe('mealService', () => {
   });
 
   it('loads a meal by id', async () => {
-    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue({
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       json: async () => ({ meals: [{ idMeal: '52772', strMeal: 'Teriyaki Chicken' }] }),
     });

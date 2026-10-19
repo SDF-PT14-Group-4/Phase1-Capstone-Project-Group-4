@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { getRandomMeal } from "../services/backendMealService";
 import "./Surprise.css";
 
 function Surprise() {
@@ -12,24 +13,17 @@ function Surprise() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/random.php"
-      );
+      const randomMeal = await getRandomMeal();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch a random meal.");
-      }
-
-      const data = await response.json();
-
-      if (!data.meals || data.meals.length === 0) {
+      if (!randomMeal) {
         setError("No meal was found. Please try again.");
         setMeal(null);
         return;
       }
 
-      setMeal(data.meals[0]);
-    } catch {
+      setMeal(randomMeal);
+    } catch (error) {
+      console.error("Surprise meal error:", error);
       setError("Unable to get a surprise meal right now. Please try again.");
       setMeal(null);
     } finally {

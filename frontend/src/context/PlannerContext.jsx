@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PlannerContext } from "./plannerContext";
+import { PlannerContext } from "./planner-context.js";
 
 const initialPlanner = {
   monday: [],
@@ -23,21 +23,21 @@ export function PlannerProvider({ children }) {
   }, [planner]);
 
   function addMeal(day, meal) {
-  setPlanner((currentPlanner) => {
-    const alreadyPlanned = currentPlanner[day].some(
-      (plannedMeal) => plannedMeal.idMeal === meal.idMeal
-    );
+    setPlanner((currentPlanner) => {
+      const alreadyPlanned = currentPlanner[day].some(
+        (plannedMeal) => plannedMeal.idMeal === meal.idMeal
+      );
 
-    if (alreadyPlanned) {
-      return currentPlanner;
-    }
+      if (alreadyPlanned) {
+        return currentPlanner;
+      }
 
-    return {
-      ...currentPlanner,
-      [day]: [...currentPlanner[day], meal],
-    };
-  });
-}
+      return {
+        ...currentPlanner,
+        [day]: [...currentPlanner[day], meal],
+      };
+    });
+  }
 
   function removeMeal(day, mealId) {
     setPlanner((currentPlanner) => ({
@@ -48,12 +48,20 @@ export function PlannerProvider({ children }) {
     }));
   }
 
+  function clearDay(day) {
+  setPlanner((currentPlanner) => ({
+    ...currentPlanner,
+    [day]: [],
+  }));
+  }
+
   return (
     <PlannerContext.Provider
       value={{
         planner,
         addMeal,
         removeMeal,
+        clearDay,
       }}
     >
       {children}

@@ -1,0 +1,155 @@
+/* =================================
+   Search Page
+   ================================= */
+
+.search-page {
+  padding-bottom: var(--space-4xl);
+}
+
+
+/* =================================
+   Search Hero
+   ================================= */
+
+.search-hero {
+  padding-top: var(--space-3xl);
+  padding-bottom: var(--space-2xl);
+
+  text-align: center;
+}
+
+.search-eyebrow {
+  margin-bottom: var(--space-sm);
+
+  color: var(--color-secondary);
+
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.search-hero h1 {
+  margin-bottom: var(--space-md);
+}
+
+.search-description {
+  max-width: 620px;
+  margin-inline: auto;
+
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+
+/* =================================
+   Search Form
+   ================================= */
+
+.search-form {
+  max-width: 760px;
+  margin: var(--space-2xl) auto 0;
+}
+
+.search-input-wrapper {
+  display: flex;
+  gap: var(--space-sm);
+
+  padding: var(--space-sm);
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-md);
+}
+
+.search-input-wrapper input {
+  flex: 1;
+
+  border: none;
+  box-shadow: none;
+}
+
+.search-input-wrapper input:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.search-input-wrapper button {
+  flex-shrink: 0;
+}
+
+
+/* =================================
+   Search Results
+   ================================= */
+
+.search-results {
+  padding-top: var(--space-xl);
+}
+
+.search-results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  gap: var(--space-md);
+
+  margin-bottom: var(--space-lg);
+}
+
+.search-results-header h2 {
+  margin-bottom: 0;
+
+  font-size: var(--text-3xl);
+}
+
+.search-results-header p {
+  margin-bottom: 0;
+
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+
+/* =================================
+   Messages
+   ================================= */
+
+.search-message {
+  padding: var(--space-lg);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+
+  color: var(--color-text-muted);
+
+  text-align: center;
+}
+
+
+/* =================================
+   Responsive
+   ================================= */
+
+@media (max-width: 600px) {
+  .search-hero {
+    padding-top: var(--space-2xl);
+  }
+
+  .search-input-wrapper {
+    flex-direction: column;
+  }
+
+  .search-input-wrapper button {
+    width: 100%;
+  }
+
+  .search-results-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

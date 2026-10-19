@@ -1,16 +1,37 @@
-# React + Vite
+# GlobalTaste Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the React + Vite frontend for the GlobalTaste project.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+Registration and login use the Flask API. By default, the frontend sends auth
+requests to `http://127.0.0.1:5000/api`; set `VITE_API_BASE_URL` to a different
+API base URL when needed (for example, `https://api.example.com/api`). Configure
+the backend's `FRONTEND_ORIGIN` to the origin serving this frontend.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Signed-in users load and update basket items, quantities, and totals through the
+authenticated basket API. Guests use a separate local-only basket; signing in
+loads the account basket.
 
-## Expanding the ESLint configuration
+## Project scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev        # runs the app in development mode
+npm run build      # creates the production build
+npm run preview    # previews the built app locally
+npm run lint       # runs the ESLint checks
+npm run test       # runs the Vitest test suite
+npm run test:coverage # runs tests and reports/enforces coverage
+npm run test:watch # runs tests in watch mode
+```
+
+Coverage reports are written to `coverage/` (HTML and LCOV) and are excluded from version control. The current minimums are 45% statements, 60% branches, 50% functions, and 45% lines.
+
+## Repository
+
+Repository: `SDF-PT14-Group-4/Phase1-Capstone-Project-Group-4`

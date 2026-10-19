@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
 import MealGrid from "../components/meal/MealGrid";
-
-const BASE_URL =
-  "https://www.themealdb.com/api/json/v1/1";
+import { getMealsByCategory } from "../services/backendMealService";
+import "./Discovery.css";
 
 export default function CategoryMeals() {
   const { category } = useParams();
-
-  const decodedCategory = decodeURIComponent(
-    category || ""
-  );
-
+  const decodedCategory = decodeURIComponent(category || "");
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,21 +17,8 @@ export default function CategoryMeals() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${BASE_URL}/filter.php?c=${encodeURIComponent(
-            decodedCategory
-          )}`
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            "Failed to load category meals."
-          );
-        }
-
-        const data = await response.json();
-
-        setMeals(data.meals || []);
+        const results = await getMealsByCategory(decodedCategory);
+        setMeals(results);
       } catch (error) {
         console.error("Category meals error:", error);
         setError("Unable to load category meals.");
@@ -46,27 +27,27 @@ export default function CategoryMeals() {
       }
     }
 
-    if (decodedCategory) {
-      loadMeals();
-    } else {
-      setError("No category was selected.");
-      setLoading(false);
+    if (!decodedCategory) {
+      return;
     }
+
+    loadMeals();
   }, [decodedCategory]);
 
+  const selectionError = decodedCategory ? "" : "No category was selected.";
+  const displayedError = error || selectionError;
+
   return (
-    <main>
+    <main className="discovery-page listing-page">
       <h1>{decodedCategory} Meals</h1>
 
-      {loading && (
+      {loading && decodedCategory && (
         <p>Loading {decodedCategory} meals...</p>
       )}
 
-      {error && <p>{error}</p>}
+      {displayedError && <p role="alert">{displayedError}</p>}
 
-      {!loading && !error && (
-        <MealGrid meals={meals} />
-      )}
+      {!loading && !displayedError && <MealGrid meals={meals} />}
     </main>
   );
 }

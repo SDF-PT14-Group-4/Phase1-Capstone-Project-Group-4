@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useFavorites } from "../../context/FavoritesContext";
+import { useFavorites } from "../../hooks/useFavorites.js";
 
 function MealCard({ meal }) {
   const {
@@ -37,7 +37,15 @@ function MealCard({ meal }) {
         <h3>{meal.strMeal}</h3>
 
         {meal.strCategory && (
-          <p>{meal.strCategory}</p>
+          <p>
+            <Link
+              className="meal-category-link"
+              to={`/categories/${encodeURIComponent(meal.strCategory)}`}
+              aria-label={`Explore ${meal.strCategory} recipes`}
+            >
+              {meal.strCategory}
+            </Link>
+          </p>
         )}
 
         {meal.strArea && (
