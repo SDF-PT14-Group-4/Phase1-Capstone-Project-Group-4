@@ -33,12 +33,15 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+
     @app.after_request
     def add_cors_headers(response):
         origin = request.headers.get("Origin")
         allowed_origins = app.config["FRONTEND_ORIGIN"]
         if isinstance(allowed_origins, str):
-            allowed_origins = [allowed_origins]
+            allowed_origins = [
+                o.strip().rstrip("/") for o in allowed_origins.split(",") if o.strip()
+            ]
         if origin in allowed_origins:
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
@@ -50,6 +53,14 @@ def create_app(test_config=None):
     from .routes import api
 
     app.register_blueprint(api, url_prefix="/api")
+
+    @app.get("/")
+    def index():
+        return jsonify({
+            "status": "healthy",
+            "message": "Welcome to the GlobalTaste Backend",
+            "version": "1.0.0",
+        })
 
     @app.get("/api/health")
     def health():
