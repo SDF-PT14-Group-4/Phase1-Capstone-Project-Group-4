@@ -14,3 +14,8 @@ dist/
 
 # Debug logs
 npm-debug.log*
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+.env
