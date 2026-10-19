@@ -7,6 +7,7 @@ This project is hosted in the GitHub organization `SDF-PT14-Group-4` under the r
 ## Live Demo
 
 [View the live application](https://phase1-capstone-project-group-4.netlify.app)
+[View the live backend application](https://phase1-capstone-project-group-4.onrender.com/)
 
 GlobalTaste is a React + Vite meal discovery application for browsing meals, searching by keyword, viewing ingredients and instructions, saving favorites, and planning meals from around the world.
 
