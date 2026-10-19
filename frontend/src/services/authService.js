@@ -1,5 +1,9 @@
+const DEFAULT_API_URL = import.meta.env.PROD
+  ? "https://phase1-capstone-project-group-4.onrender.com/api"
+  : "http://127.0.0.1:5000/api";
+
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api"
+  import.meta.env.VITE_API_BASE_URL || DEFAULT_API_URL
 ).replace(/\/+$/, "");
 
 const AUTH_STORAGE_KEY = "globaltaste.auth";
