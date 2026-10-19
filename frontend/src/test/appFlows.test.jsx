@@ -2,9 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { FavoritesProvider } from "../context/FavoritesContext";
-import { PlannerContext } from "../context/plannerContext.js";
+import { PlannerContext } from "../context/planner-context.js";
 import { useFavorites } from "../hooks/useFavorites.js";
-import { BasketProvider } from "../context/BasketContext";
 
 const MEAL = {
   idMeal: "52772",
@@ -22,25 +21,23 @@ function renderApp(path = "/") {
 
   return render(
     <FavoritesProvider>
-      <BasketProvider>
-        <PlannerContext.Provider
-          value={{
-            planner: {
-              monday: [],
-              tuesday: [],
-              wednesday: [],
-              thursday: [],
-              friday: [],
-              saturday: [],
-              sunday: [],
-            },
-            addMeal: vi.fn(),
-            removeMeal: vi.fn(),
-          }}
-        >
-          <App />
-        </PlannerContext.Provider>
-      </BasketProvider>
+      <PlannerContext.Provider
+        value={{
+          planner: {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          },
+          addMeal: vi.fn(),
+          removeMeal: vi.fn(),
+        }}
+      >
+        <App />
+      </PlannerContext.Provider>
     </FavoritesProvider>
   );
 }
@@ -252,7 +249,7 @@ expect(
       target: { value: "500" },
     });
     fireEvent.click(screen.getByRole("button", { name: /add to basket/i }));
-    expect(screen.getByText(/added to basket/i)).toBeInTheDocument();
+    expect(await screen.findByText(/added to basket/i)).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem("mealBasket"))).toHaveLength(1);
 
 
@@ -260,6 +257,92 @@ fireEvent.click(screen.getByRole("link", { name: "Basket" }));
 expect(screen.getByText("Total").parentElement).toHaveTextContent(
   /KSh\s*500/
 );
+});
+
+it("uses the account basket API for items, quantities, and totals", async () => {
+  localStorage.setItem(
+    "globaltaste.auth",
+    JSON.stringify({
+      accessToken: "test-token",
+      user: { id: 1, email: "person@example.com" },
+    })
+  );
+
+  let items = [
+    {
+      mealId: "52772",
+      name: MEAL.strMeal,
+      image: MEAL.strMealThumb,
+      price: 250,
+      quantity: 2,
+      subtotal: 500,
+    },
+  ];
+  const fetchMock = vi.fn(async (url, options = {}) => {
+    const method = options.method || "GET";
+    if (url.endsWith("/me/basket") && method === "GET") {
+      return mockJsonResponse({
+        items,
+        total: items.reduce((sum, item) => sum + item.subtotal, 0),
+        currency: "KES",
+      });
+    }
+    if (url.endsWith("/me/basket") && method === "POST") {
+      const request = JSON.parse(options.body);
+      const existing = items.find((item) => item.mealId === request.mealId);
+      existing.quantity += 1;
+      existing.subtotal = existing.price * existing.quantity;
+      return mockJsonResponse(existing);
+    }
+    if (url.endsWith("/me/basket/52772") && method === "PATCH") {
+      const { quantity } = JSON.parse(options.body);
+      items[0].quantity = quantity;
+      items[0].subtotal = items[0].price * quantity;
+      return mockJsonResponse(items[0]);
+    }
+    if (url.endsWith("/me/basket") && method === "DELETE") {
+      items = [];
+      return { status: 204, ok: true };
+    }
+    throw new Error(`Unexpected basket request: ${method} ${url}`);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+
+  renderApp("/basket");
+  expect(await screen.findByText("Total")).toBeInTheDocument();
+  expect(screen.getByText("Total").parentElement).toHaveTextContent(
+    /KSh\s*500/
+  );
+  expect(fetchMock).toHaveBeenCalledWith(
+    "http://127.0.0.1:5000/api/me/basket",
+    expect.objectContaining({
+      headers: { Authorization: "Bearer test-token" },
+    })
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: /increase quantity/i }));
+  await screen.findByText("3");
+  expect(screen.getByText("Total").parentElement).toHaveTextContent(
+    /KSh\s*750/
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: /decrease quantity/i }));
+  await screen.findByText("2");
+  expect(screen.getByText("Total").parentElement).toHaveTextContent(
+    /KSh\s*500/
+  );
+  expect(fetchMock).toHaveBeenCalledWith(
+    "http://127.0.0.1:5000/api/me/basket/52772",
+    expect.objectContaining({
+      method: "PATCH",
+      body: JSON.stringify({ quantity: 2 }),
+    })
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: /clear basket/i }));
+  expect(
+    await screen.findByRole("heading", { name: /nothing here yet/i })
+  ).toBeInTheDocument();
 });
 
 // This is the next independent test.

@@ -4,15 +4,12 @@ import "./index.css";
 import App from "./App.jsx";
 import { FavoritesProvider } from "./context/FavoritesContext.jsx";
 import { PlannerProvider } from "./context/PlannerContext.jsx";
-import { BasketProvider } from "./context/BasketContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <FavoritesProvider>
       <PlannerProvider>
-        <BasketProvider>
-          <App />
-        </BasketProvider>
+        <App />
       </PlannerProvider>
     </FavoritesProvider>
   </StrictMode>

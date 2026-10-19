@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PlannerContext } from "./plannerContext";
+import { PlannerContext } from "./planner-context.js";
 
 const initialPlanner = {
   monday: [],

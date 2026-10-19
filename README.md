@@ -11,7 +11,8 @@
 
 ## 1. Project Overview
 
-GlobalTaste is a meal discovery and food-planning web application designed to help users explore meals, discover different cuisines, organise their favourite dishes, and plan meals more effectively.
+[View the live application](https://phase1-capstone-project-group-4.netlify.app)
+[View the live backend application](https://phase1-capstone-project-group-4.onrender.com/)
 
 The project began as a frontend proof of concept developed with React and Vite. In Phase 1, the application used TheMealDB public API to retrieve meal information, including meal names, images, categories, cuisines, ingredients, and preparation instructions.
 
