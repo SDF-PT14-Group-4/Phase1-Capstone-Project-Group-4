@@ -46,7 +46,7 @@ describe("account registration and login", () => {
 
     expect(await screen.findByRole("button", { name: "Log out" })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
-      "http://127.0.0.1:5000/api/auth/register",
+      "/api/auth/register",
       expect.objectContaining({
         method: "POST",
         headers: { "Content-Type": "application/json" },
