@@ -1,5 +1,9 @@
-
-const API_BASE_URL = "/api";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD
+    ? "https://phase1-capstone-project-group-4.onrender.com/api"
+    : "/api")
+).replace(/\/+$/, "");
 
 // Shared helper for sending requests to the Flask backend.
 async function fetchFromBackend(endpoint, signal) {
