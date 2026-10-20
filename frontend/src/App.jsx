@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import MealDetails from "./pages/MealDetails";
+import Cuisines from "./pages/Cuisines";
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
           <Route path="/meal/:id" element={<MealDetails />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:category" element={<CategoryMeals />} />
-          <Route path="/cuisine/:area" element={<CuisineMeals />} />
+          <Route path="/cuisines" element={<Cuisines />} />
+          <Route path="/cuisines/:cuisine" element={<CuisineMeals />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/basket" element={<Basket />} />
