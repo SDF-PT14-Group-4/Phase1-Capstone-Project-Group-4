@@ -20,6 +20,7 @@ class User(db.Model):
     favorites = db.relationship("FavoriteMeal", back_populates="user", cascade="all, delete-orphan")
     planned_meals = db.relationship("PlannedMeal", back_populates="user", cascade="all, delete-orphan")
     basket_items = db.relationship("BasketItem", back_populates="user", cascade="all, delete-orphan")
+    last_login_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

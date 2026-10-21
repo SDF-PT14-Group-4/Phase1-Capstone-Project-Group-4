@@ -11,7 +11,10 @@
 
 ## 1. Project Overview
 
-[View the live application](https://phase1-capstone-project-group-4.netlify.app)
+### Frontend (React + Vite)
+[View the live frontend application](https://phase1-capstone-project-group-4.netlify.app)
+
+### Backend (Python + Flask)
 [View the live backend application](https://phase1-capstone-project-group-4.onrender.com/)
 
 The project began as a frontend proof of concept developed with React and Vite. In Phase 1, the application used TheMealDB public API to retrieve meal information, including meal names, images, categories, cuisines, ingredients, and preparation instructions.
