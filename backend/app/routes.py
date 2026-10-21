@@ -1,5 +1,10 @@
 from decimal import Decimal, InvalidOperation
 import re
+import os
+from datetime import datetime, timezone
+from flask import render_template_string, url_for
+
+
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
@@ -108,6 +113,8 @@ def login():
     user = db.session.scalar(select(User).where(User.email == email.strip().lower()))
     if user is None or not user.check_password(password):
         return error("Email or password is incorrect.", "INVALID_CREDENTIALS", 401)
+    user.last_login_at = datetime.now(timezone.utc)
+    db.session.commit()
     return jsonify({
         "accessToken": create_access_token(identity=str(user.id)),
         "user": {"id": user.id, "email": user.email},
@@ -368,3 +375,97 @@ def meals_by_cuisine(cuisine):
     if not cuisine.strip() or len(cuisine) > 120:
         return error("A valid cuisine is required.", "INVALID_CUISINE", 400)
     return mealdb_response("filter.php", {"a": cuisine.strip()})
+
+def is_admin(user):
+    admins = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
+    return user is not None and user.email in admins
+
+
+@api.get("/admin/customers")
+@jwt_required()
+def list_customers():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+    users = db.session.scalars(select(User).order_by(User.last_login_at.desc().nullslast())).all()
+    return jsonify({"customers": [{
+        "id": u.id,
+        "email": u.email,
+        "createdAt": u.created_at.isoformat(),
+        "lastLoginAt": u.last_login_at.isoformat() if u.last_login_at else None,
+        "favorites": len(u.favorites),
+        "plannedMeals": len(u.planned_meals),
+        "basketItems": len(u.basket_items),
+    } for u in users]})
+
+
+ADMIN_PAGE = """<!doctype html>
+<html><head><meta charset="utf-8"><title>GlobalTaste Admin</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:2rem}
+input,button{padding:.5rem;margin:.25rem 0}
+table{border-collapse:collapse;margin-top:1rem}
+th,td{border:1px solid #444;padding:.4rem .8rem;text-align:left}
+.recent{color:#4ade80}
+#error{color:#f87171}
+</style></head><body>
+<h1>GlobalTaste Admin</h1>
+<div id="login">
+  <input id="email" type="email" placeholder="Admin email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button id="go">Log in</button>
+  <p id="error"></p>
+</div>
+<div id="data" hidden>
+  <p id="summary"></p>
+  <table><thead><tr><th>ID</th><th>Email</th><th>Last login</th><th>Joined</th>
+  <th>Favorites</th><th>Planned</th><th>Basket</th></tr></thead><tbody id="rows"></tbody></table>
+</div>
+<script>
+const LOGIN_URL = {{ login_url|tojson }};
+const CUSTOMERS_URL = {{ customers_url|tojson }};
+const $ = (id) => document.getElementById(id);
+
+$("go").onclick = async () => {
+  $("error").textContent = "";
+  const res = await fetch(LOGIN_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({email: $("email").value, password: $("password").value}),
+  });
+  const login = await res.json();
+  if (!res.ok) { $("error").textContent = login.error?.message || "Login failed"; return; }
+
+  const r = await fetch(CUSTOMERS_URL, {headers: {Authorization: "Bearer " + login.accessToken}});
+  const data = await r.json();
+  if (!r.ok) { $("error").textContent = data.error?.message || "Not allowed"; return; }
+
+  $("login").hidden = true;
+  $("data").hidden = false;
+  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const recent = data.customers.filter(c => c.lastLoginAt && new Date(c.lastLoginAt) > dayAgo);
+  $("summary").textContent = recent.length + " logged in within the last 24h, " + data.customers.length + " users total";
+  const tbody = $("rows");
+  data.customers.forEach(c => {
+    const tr = document.createElement("tr");
+    const isRecent = c.lastLoginAt && new Date(c.lastLoginAt) > dayAgo;
+    const cells = [c.id, c.email, c.lastLoginAt ? new Date(c.lastLoginAt).toLocaleString() : "never",
+      new Date(c.createdAt).toLocaleDateString(), c.favorites, c.plannedMeals, c.basketItems];
+    cells.forEach((v, i) => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      if (i === 2 && isRecent) td.className = "recent";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+};
+</script></body></html>"""
+
+
+@api.get("/admin")
+def admin_page():
+    return render_template_string(
+        ADMIN_PAGE,
+        login_url=url_for("api.login"),
+        customers_url=url_for("api.list_customers"),
+    )
