@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FavoritesProvider } from "../../context/FavoritesContext";
 import Search from "../Search";
+import { AuthProvider } from "../../context/AuthContext";
 
 describe("Search", () => {
   beforeEach(() => {
@@ -26,11 +27,13 @@ describe("Search", () => {
     });
 
     render(
-      <MemoryRouter>
-        <FavoritesProvider>
-          <Search />
-        </FavoritesProvider>
-      </MemoryRouter>
+      <AuthProvider>
+        <MemoryRouter>
+          <FavoritesProvider>
+            <Search />
+          </FavoritesProvider>
+        </MemoryRouter>
+      </AuthProvider>
     );
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search meals" }), {

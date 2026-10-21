@@ -10,6 +10,8 @@ function Planner() {
   addMeal,
   removeMeal,
   clearDay,
+  plannerLoading,
+  plannerError,
 } = usePlanner();
 
   const [query, setQuery] = useState("");
@@ -47,6 +49,14 @@ function Planner() {
     }
   }
 
+
+  function handleClearSearch() {
+    setQuery("");
+    setMeals([]);
+    setError("");
+  }
+
+
   function handleAddMeal(meal) {
     addMeal(selectedDay, meal);
   }
@@ -63,24 +73,39 @@ function Planner() {
       </header>
 
       <section className="planner-search">
-        <form onSubmit={handleSearch} className="planner-search-form">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for a meal"
-            aria-label="Search for a meal"
-          />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Searching..." : "Search"}
-          </button>
-        </form>
+<form onSubmit={handleSearch} className="planner-search-form">
+  <input
+    type="text"
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    placeholder="Search for a meal"
+    aria-label="Search for a meal"
+  />
+
+  <button type="submit" disabled={loading}>
+    {loading ? "Searching..." : "Search"}
+  </button>
+
+  <button
+    type="button"
+    onClick={handleClearSearch}
+    disabled={loading && meals.length === 0}
+  >
+    Clear Search
+  </button>
+</form>
 
         {error && (
           <p className="planner-error" role="alert">
             {error}
           </p>
+        )}
+
+        {plannerError && (
+           <p className="planner-error" role="alert">
+            {plannerError}
+           </p>
         )}
       </section>
 
@@ -136,11 +161,14 @@ function Planner() {
                   )}
 
                   <button
-                    type="button"
-                    onClick={() => handleAddMeal(meal)}
-                  >
-                    Add to {formatDay(selectedDay)}
-                  </button>
+  type="button"
+  onClick={() => handleAddMeal(meal)}
+  disabled={plannerLoading}
+>
+  {plannerLoading
+    ? "Loading plan..."
+    : `Add to ${formatDay(selectedDay)}`}
+</button>
                 </div>
               </article>
             ))}
@@ -152,6 +180,9 @@ function Planner() {
         <div className="planner-section-header">
           <h2>Your Weekly Plan</h2>
         </div>
+        {plannerLoading && (
+  <p role="status">Loading your saved weekly plan...</p>
+)}
 
         <div className="weekly-plan">
           {days.map((day) => (
