@@ -14,6 +14,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import MealDetails from "./pages/MealDetails";
 import Cuisines from "./pages/Cuisines";
+import AdminMeals from "./pages/AdminMeals";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/surprise" element={<Surprise />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/admin/meals" element={<AdminMeals />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

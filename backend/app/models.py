@@ -29,6 +29,28 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+class AdminMeal(db.Model):
+    __tablename__ = "admin_meals"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    image = db.Column(db.Text, nullable=False, default="")
+    category = db.Column(db.String(120), nullable=False, default="")
+    cuisine = db.Column(db.String(120), nullable=False, default="")
+    meal_data = db.Column(db.JSON, nullable=False, default=dict)
+
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=utc_now
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=utc_now,
+        onupdate=utc_now
+    )
+
 class MealRecord(db.Model):
     __abstract__ = True
 
