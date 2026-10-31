@@ -228,6 +228,7 @@ function MealDetails() {
               <p className="price-description">
               The price details entered are for planning purposes and not buying
               </p>
+            </div>
 
               <button type="button" onClick={handleAddToBasket}>
                 Add to Basket
