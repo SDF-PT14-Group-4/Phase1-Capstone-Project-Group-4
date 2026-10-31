@@ -226,14 +226,14 @@ function MealDetails() {
               />
 
               <p className="price-description">
-              The price details entered are for planning purposes and not buying
+                The price details entered are for planning purposes and not buying
               </p>
             </div>
 
               <button type="button" onClick={handleAddToBasket}>
                 Add to Basket
               </button>
-            </div>
+            
 
             {message && (
               <p className="basket-message" role="status">
