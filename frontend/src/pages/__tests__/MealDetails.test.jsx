@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MealDetails from "../MealDetails";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useBasket } from "../../hooks/useBasket";
+import { useAuth } from "../../hooks/useAuth";
 
 vi.mock("../../hooks/useFavorites", () => ({
   useFavorites: vi.fn(),
@@ -11,6 +12,10 @@ vi.mock("../../hooks/useFavorites", () => ({
 
 vi.mock("../../hooks/useBasket", () => ({
   useBasket: vi.fn(),
+}));
+
+vi.mock("../../hooks/useAuth", () => ({
+  useAuth: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -21,6 +26,9 @@ beforeEach(() => {
 
   vi.mocked(useBasket).mockReturnValue({
     addToBasket: vi.fn(),
+  });
+  vi.mocked(useAuth).mockReturnValue({
+    isAuthenticated: true,
   });
 });
 

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useBasket } from "../hooks/useBasket.js";
+import { useAuth } from "../hooks/useAuth.js";
+import GuestSignInPrompt from "../components/account/GuestSignInPrompt";
 import "./Basket.css";
 
 function Basket() {
@@ -13,6 +15,7 @@ function Basket() {
     removeFromBasket,
     clearBasket,
   } = useBasket();
+  const { isAuthenticated } = useAuth();
 
   return (
     <main className="basket-page">
@@ -25,12 +28,16 @@ function Basket() {
         </p>
       </header>
 
-      {error && (
-        <p className="basket-error" role="alert">
-          {error}
-        </p>
-      )}
-      {loading ? (
+      {!isAuthenticated ? (
+        <GuestSignInPrompt feature="your basket" />
+      ) : (
+        <>
+          {error && (
+            <p className="basket-error" role="alert">
+              {error}
+            </p>
+          )}
+          {loading ? (
         <p role="status">Loading your basket...</p>
       ) : items.length === 0 ? (
         <section className="basket-empty">
@@ -151,6 +158,8 @@ function Basket() {
             </Link>
           </aside>
         </section>
+          )}
+        </>
       )}
     </main>
   );

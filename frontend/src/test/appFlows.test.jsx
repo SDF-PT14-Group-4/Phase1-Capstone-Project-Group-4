@@ -383,31 +383,31 @@ describe("application user flows", () => {
   });
 
   it("adds a meal to the basket and supports the empty basket state", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi
-        .fn()
-        // Categories list
-        .mockResolvedValueOnce(
-          mockJsonResponse({
-            categories: [
-              {
-                idCategory: "1",
-                strCategory: "Chicken",
-                strCategoryThumb: "https://example.com/chicken.jpg",
-              },
-            ],
-          })
-        )
-        // Meals in category
-        .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-        // Meal details
-        .mockResolvedValueOnce(mockJsonResponse({ meals: [MEAL] }))
-    );
+    setAuthenticatedSession();
+    let basketItems = [];
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const path = String(url);
+      const method = options.method || "GET";
+      if (path.endsWith("/me/basket") && method === "GET") {
+        return mockJsonResponse({
+          items: basketItems,
+          total: basketItems.reduce((sum, item) => sum + item.subtotal, 0),
+          currency: "KES",
+        });
+      }
+      if (path.endsWith("/me/basket") && method === "POST") {
+        basketItems = [{ mealId: "52772", name: MEAL.strMeal, image: MEAL.strMealThumb, price: 500, quantity: 1, subtotal: 500 }];
+        return mockJsonResponse(basketItems[0]);
+      }
+      if (path.includes("categories")) {
+        return mockJsonResponse({ categories: [{ idCategory: "1", strCategory: "Chicken", strCategoryThumb: "https://example.com/chicken.jpg" }] });
+      }
+      return mockJsonResponse({ meals: [MEAL] });
+    }));
     renderApp("/basket");
 
     expect(
-      screen.getByRole("heading", { name: /nothing here yet/i })
+      await screen.findByRole("heading", { name: /nothing here yet/i })
     ).toBeInTheDocument();
 
     // Navigate to the recipe
@@ -428,7 +428,6 @@ describe("application user flows", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /add to basket/i }));
     expect(await screen.findByText(/added to basket/i)).toBeInTheDocument();
-    expect(JSON.parse(localStorage.getItem("mealBasket"))).toHaveLength(1);
 
     // Basket total
     fireEvent.click(screen.getByRole("link", { name: "Basket" }));

@@ -9,7 +9,6 @@ import {
   removeBasketItem as removeBasketItemRequest,
   updateBasketQuantity,
 } from "../services/basketService.js";
-import { readStorage, STORAGE_KEYS, writeStorage } from "../utils/storage.js";
 
 // Demo pricing only: TheMealDB is a recipe source, not a restaurant catalogue.
 const DEMO_PRICE = 10;
@@ -25,7 +24,7 @@ export function BasketProvider({ children }) {
 
 function BasketStateProvider({ children, accessToken }) {
   const [items, setItems] = useState(() =>
-    accessToken ? [] : readStorage(STORAGE_KEYS.basket, [])
+    []
   );
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(Boolean(accessToken));
@@ -77,12 +76,6 @@ function BasketStateProvider({ children, accessToken }) {
     };
   }, [accessToken]);
 
-  useEffect(() => {
-    if (!accessToken) {
-      writeStorage(STORAGE_KEYS.basket, items);
-    }
-  }, [accessToken, items]);
-
   async function runBasketAction(action) {
     setError("");
     try {
@@ -99,6 +92,7 @@ function BasketStateProvider({ children, accessToken }) {
   }
 
   async function addToBasket(meal, price = DEMO_PRICE) {
+    if (!accessToken) return false;
     if (!meal?.id || !price || Number(price) <= 0) {
       return false;
     }

@@ -1,0 +1,20 @@
+.guest-sign-in-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.guest-sign-in-prompt h2 { margin-bottom: var(--space-sm); font-size: var(--text-2xl); }
+.guest-sign-in-prompt p { color: var(--color-text-muted); }
+.guest-sign-in-eyebrow { color: var(--color-secondary) !important; font-size: var(--text-xs); font-weight: 700; letter-spacing: .12em; }
+.guest-sign-in-actions { display: flex; flex-shrink: 0; gap: var(--space-sm); }
+.guest-sign-in-actions a { padding: .7rem 1rem; border-radius: var(--radius-md); font-weight: 700; }
+.guest-sign-in-primary { background: var(--color-primary); color: var(--color-text-light); }
+.guest-sign-in-secondary { border: 1px solid var(--color-border); color: var(--color-primary); }
+@media (max-width: 600px) { .guest-sign-in-prompt, .guest-sign-in-actions { align-items: stretch; flex-direction: column; } }

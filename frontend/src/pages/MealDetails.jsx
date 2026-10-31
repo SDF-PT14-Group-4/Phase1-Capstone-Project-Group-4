@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { useBasket } from "../hooks/useBasket.js";
+import { useAuth } from "../hooks/useAuth.js";
+import GuestSignInPrompt from "../components/account/GuestSignInPrompt";
 
 function MealDetails() {
   const { id } = useParams();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToBasket, error: basketError } = useBasket();
+  const { isAuthenticated } = useAuth();
 
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -139,7 +142,7 @@ function MealDetails() {
               <button
                 type="button"
                 className={`meal-details-favorite ${favorite ? "active" : ""}`}
-                onClick={() => toggleFavorite(meal)}
+                onClick={() => isAuthenticated ? toggleFavorite(meal) : null}
                 aria-label={
                   favorite
                     ? `Remove ${meal.strMeal} from favorites`
@@ -165,6 +168,8 @@ function MealDetails() {
             )}
           </div>
         </section>
+
+        {!isAuthenticated && <GuestSignInPrompt feature="favorites" />}
 
         <section className="meal-details-section">
           <div className="meal-details-section-heading">
@@ -212,6 +217,9 @@ function MealDetails() {
             <h2>Add to Basket</h2>
           </div>
 
+          {!isAuthenticated ? (
+            <GuestSignInPrompt feature="the basket" />
+          ) : (
           <div className="basket-form">
             <label htmlFor="meal-price">Price (Ksh)</label>
 
@@ -241,6 +249,7 @@ function MealDetails() {
               </p>
             )}
           </div>
+          )}
         </section>
 
         {meal.strYoutube && (

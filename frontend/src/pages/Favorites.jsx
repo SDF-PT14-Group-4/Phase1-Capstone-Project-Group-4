@@ -1,6 +1,7 @@
 import MealGrid from "../components/meal/MealGrid";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { useAuth } from "../hooks/useAuth.js";
+import GuestSignInPrompt from "../components/account/GuestSignInPrompt";
 
 export default function Favorites() {
   const { favorites, loading, error, setError } = useFavorites();
@@ -22,13 +23,7 @@ export default function Favorites() {
       </section>
 
       {!isAuthenticated ? (
-        <section className="favorites-empty">
-          <h2>Sign in to view your favorites</h2>
-          <p>
-            Your saved recipes are connected to your account.
-            Sign in to access them across sessions.
-          </p>
-        </section>
+        <GuestSignInPrompt feature="your favorites" />
       ) : loading ? (
         <section className="favorites-empty" aria-live="polite">
           <p>Loading your favorites...</p>

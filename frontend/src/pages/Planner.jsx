@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
+import { useAuth } from "../hooks/useAuth.js";
+import GuestSignInPrompt from "../components/account/GuestSignInPrompt";
+import { readStorage, writeStorage } from "../utils/storage.js";
 import "./Planner.css";
 
 function Planner() {
@@ -19,6 +22,17 @@ function Planner() {
   const [selectedDay, setSelectedDay] = useState("monday");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { isAuthenticated, user } = useAuth();
+  const customMealsKey = user ? `customMeals:${user.id}` : null;
+  const [customMeals, setCustomMeals] = useState(() =>
+    customMealsKey ? readStorage(customMealsKey, []) : []
+  );
+  const [customName, setCustomName] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+
+  useEffect(() => {
+    setCustomMeals(customMealsKey ? readStorage(customMealsKey, []) : []);
+  }, [customMealsKey]);
 
   const days = Object.keys(planner);
 
@@ -61,6 +75,33 @@ function Planner() {
     addMeal(selectedDay, meal);
   }
 
+  function handleCreateCustomMeal(event) {
+    event.preventDefault();
+    if (!isAuthenticated || !customMealsKey) return;
+
+    const name = customName.trim();
+    if (!name) {
+      setError("Please enter a name for your custom meal.");
+      return;
+    }
+
+    const meal = {
+      idMeal: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      strMeal: name,
+      strMealThumb: "",
+      strCategory: customCategory.trim() || "Custom",
+      strArea: "Custom",
+      strInstructions: "Custom meal created by the user.",
+      isCustomMeal: true,
+    };
+    const nextMeals = [...customMeals, meal];
+    setCustomMeals(nextMeals);
+    writeStorage(customMealsKey, nextMeals);
+    setCustomName("");
+    setCustomCategory("");
+    setError("");
+  }
+
   function formatDay(day) {
     return day.charAt(0).toUpperCase() + day.slice(1);
   }
@@ -71,6 +112,49 @@ function Planner() {
         <h1>Weekly Meal Planner</h1>
         <p>Search for meals and organize your meals for the week.</p>
       </header>
+
+      {!isAuthenticated && <GuestSignInPrompt feature="the meal planner" />}
+
+      {isAuthenticated && (
+        <section className="custom-meal-section">
+          <div className="planner-section-header">
+            <h2>Create a Custom Meal</h2>
+            <span>{customMeals.length} custom meals</span>
+          </div>
+          <form className="custom-meal-form" onSubmit={handleCreateCustomMeal}>
+            <input
+              value={customName}
+              onChange={(event) => setCustomName(event.target.value)}
+              placeholder="Meal name"
+              aria-label="Custom meal name"
+              required
+            />
+            <input
+              value={customCategory}
+              onChange={(event) => setCustomCategory(event.target.value)}
+              placeholder="Category (optional)"
+              aria-label="Custom meal category"
+            />
+            <button type="submit">Create meal</button>
+          </form>
+
+          {customMeals.length > 0 && (
+            <div className="custom-meal-list">
+              {customMeals.map((meal) => (
+                <article className="custom-meal-card" key={meal.idMeal}>
+                  <div>
+                    <h3>{meal.strMeal}</h3>
+                    <p>{meal.strCategory}</p>
+                  </div>
+                  <button type="button" onClick={() => handleAddMeal(meal)} disabled={plannerLoading}>
+                    Add to {formatDay(selectedDay)}
+                  </button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="planner-search">
 
@@ -218,20 +302,23 @@ function Planner() {
   className="planned-meal"
   key={meal.idMeal}
 >
-  <Link
-    to={`/meal/${meal.idMeal}`}
-    className="planned-meal-link"
-  >
-    <img
-      src={meal.strMealThumb}
-      alt={meal.strMeal}
-    />
-
-    <div className="planned-meal-info">
-      <h4>{meal.strMeal}</h4>
-      <span>View recipe →</span>
+  {meal.isCustomMeal || String(meal.idMeal).startsWith("custom-") ? (
+    <div className="planned-meal-link">
+      <span className="custom-meal-placeholder" aria-hidden="true">★</span>
+      <div className="planned-meal-info">
+        <h4>{meal.strMeal}</h4>
+        <span>Custom meal</span>
+      </div>
     </div>
-  </Link>
+  ) : (
+    <Link to={`/meal/${meal.idMeal}`} className="planned-meal-link">
+      <img src={meal.strMealThumb} alt={meal.strMeal} />
+      <div className="planned-meal-info">
+        <h4>{meal.strMeal}</h4>
+        <span>View recipe →</span>
+      </div>
+    </Link>
+  )}
 
   <button
     type="button"
