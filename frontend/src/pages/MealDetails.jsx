@@ -224,7 +224,10 @@ function MealDetails() {
                 onChange={(event) => setPrice(event.target.value)}
                 placeholder="Enter price"
               />
-              <p className="price-description">The price details entered are for planning purposes and not buying</p>
+
+              <p className="price-description">
+              The price details entered are for planning purposes and not buying
+              </p>
 
               <button type="button" onClick={handleAddToBasket}>
                 Add to Basket
