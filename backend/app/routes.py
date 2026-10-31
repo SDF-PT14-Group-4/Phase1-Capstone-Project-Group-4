@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from . import db
 from .mealdb import MealServiceError, get_mealdb
-from .models import BasketItem, FavoriteMeal, PlannedMeal, User
+from .models import AdminMeal, BasketItem, FavoriteMeal, PlannedMeal, User
 
 api = Blueprint("api", __name__)
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -67,13 +67,68 @@ def meal_fields(body):
         "meal_data": meal,
     }
 
+def admin_meal_fields(body):
+    meal = body.get("meal", body)
+
+    if not isinstance(meal, dict):
+        return None
+
+    name = meal.get("name", meal.get("strMeal"))
+    image = meal.get("image", meal.get("strMealThumb", ""))
+    category = meal.get("category", meal.get("strCategory", ""))
+    cuisine = meal.get("cuisine", meal.get("strArea", ""))
+
+    if not isinstance(name, str) or not name.strip() or len(name.strip()) > 255:
+        return None
+
+    if not all(isinstance(value, str) for value in (image, category, cuisine)):
+        return None
+
+    if len(category) > 120 or len(cuisine) > 120:
+        return None
+
+    meal_data = meal.get("mealData", meal.get("meal_data"))
+
+    if meal_data is None:
+        excluded = {
+            "name", "strMeal",
+            "image", "strMealThumb",
+            "category", "strCategory",
+            "cuisine", "strArea",
+        }
+        meal_data = {
+            key: value for key, value in meal.items()
+            if key not in excluded
+        }
+
+    if not isinstance(meal_data, dict):
+        return None
+
+    return {
+        "name": name.strip(),
+        "image": image.strip(),
+        "category": category.strip(),
+        "cuisine": cuisine.strip(),
+        "meal_data": meal_data,
+    }
+
+def serialize_admin_meal(meal):
+    return {
+        "id": meal.id,
+        "name": meal.name,
+        "image": meal.image,
+        "category": meal.category,
+        "cuisine": meal.cuisine,
+        "mealData": meal.meal_data,
+        "createdAt": meal.created_at.isoformat(),
+        "updatedAt": meal.updated_at.isoformat(),
+    }
 
 def mealdb_response(path, params=None):
     try:
         return jsonify(get_mealdb(path, params))
     except MealServiceError:
         return error("The meal service is temporarily unavailable.", "UPSTREAM_UNAVAILABLE", 502)
-
 
 @api.post("/auth/register")
 def register():
@@ -380,6 +435,80 @@ def is_admin(user):
     admins = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
     return user is not None and user.email in admins
 
+@api.get("/admin/meals")
+@jwt_required()
+def list_admin_meals():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meals = db.session.scalars(
+        select(AdminMeal).order_by(AdminMeal.created_at.desc())
+    ).all()
+
+    return jsonify({
+        "meals": [serialize_admin_meal(meal) for meal in meals]
+    })
+
+
+@api.post("/admin/meals")
+@jwt_required()
+def create_admin_meal():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    body = json_object()
+    fields = admin_meal_fields(body) if body else None
+
+    if fields is None:
+        return error("A valid meal is required.", "INVALID_MEAL", 400)
+
+    meal = AdminMeal(**fields)
+    db.session.add(meal)
+    db.session.commit()
+
+    return jsonify({"meal": serialize_admin_meal(meal)}), 201
+
+
+@api.put("/admin/meals/<int:meal_id>")
+@jwt_required()
+def update_admin_meal(meal_id):
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meal = db.session.get(AdminMeal, meal_id)
+
+    if meal is None:
+        return error("Meal not found.", "NOT_FOUND", 404)
+
+    body = json_object()
+    fields = admin_meal_fields(body) if body else None
+
+    if fields is None:
+        return error("A valid meal is required.", "INVALID_MEAL", 400)
+
+    for key, value in fields.items():
+        setattr(meal, key, value)
+
+    db.session.commit()
+
+    return jsonify({"meal": serialize_admin_meal(meal)})
+
+
+@api.delete("/admin/meals/<int:meal_id>")
+@jwt_required()
+def delete_admin_meal(meal_id):
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meal = db.session.get(AdminMeal, meal_id)
+
+    if meal is None:
+        return error("Meal not found.", "NOT_FOUND", 404)
+
+    db.session.delete(meal)
+    db.session.commit()
+
+    return "", 204
 
 @api.get("/admin/customers")
 @jwt_required()
@@ -460,7 +589,6 @@ $("go").onclick = async () => {
   });
 };
 </script></body></html>"""
-
 
 @api.get("/admin")
 def admin_page():
