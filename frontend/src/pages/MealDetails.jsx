@@ -226,7 +226,7 @@ function MealDetails() {
               />
 
               <p className="price-description">
-                The price details entered are for planning purposes and not buying
+                The price details entered are for planning purposes and not for purchasing
               </p>
             </div>
 
