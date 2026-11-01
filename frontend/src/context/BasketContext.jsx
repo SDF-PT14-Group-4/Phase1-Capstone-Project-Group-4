@@ -188,6 +188,7 @@ function BasketStateProvider({ children, accessToken }) {
   return (
     <BasketContext.Provider
       value={{
+        isGuest: !accessToken,
         items,
         total: basketTotal,
         loading,

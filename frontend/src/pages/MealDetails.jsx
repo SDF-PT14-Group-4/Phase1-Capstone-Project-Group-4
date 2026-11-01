@@ -1,19 +1,28 @@
 import { getMealById } from "../services/backendMealService";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { AuthContext } from "../context/auth-context.js";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { useBasket } from "../hooks/useBasket.js";
+import SignInPrompt from "../components/common/SignInPrompt.jsx";
+import {
+  getCustomMealDetails,
+  isCustomMealId,
+} from "../services/customMealService.js";
 
 function MealDetails() {
   const { id } = useParams();
-  const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToBasket, error: basketError } = useBasket();
+  const { toggleFavorite, isFavorite, isGuest } = useFavorites();
+  const { addToBasket, error: basketError, isGuest: basketIsGuest } = useBasket();
+  // Read the token without requiring a provider: private custom meals need it.
+  const accessToken = useContext(AuthContext)?.accessToken ?? null;
 
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
+  const [showFavoritePrompt, setShowFavoritePrompt] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -25,7 +34,9 @@ function MealDetails() {
         setLoading(true);
         setError("");
 
-        const foundMeal = await getMealById(id, controller.signal);
+        const foundMeal = isCustomMealId(id)
+          ? await getCustomMealDetails(id, accessToken)
+          : await getMealById(id, controller.signal);
 
         if (!foundMeal) {
           setError("Meal not found.");
@@ -36,7 +47,11 @@ function MealDetails() {
         setMeal(foundMeal);
       } catch (err) {
         if (err.name !== "AbortError") {
-          setError("Unable to fetch meal details right now.");
+          setError(
+            err.status === 404
+              ? "Meal not found."
+              : "Unable to fetch meal details right now."
+          );
           setMeal(null);
         }
       } finally {
@@ -49,7 +64,7 @@ function MealDetails() {
     fetchMealDetails();
 
     return () => controller.abort();
-  }, [id]);
+  }, [id, accessToken]);
 
   if (!id) {
     return (
@@ -96,6 +111,14 @@ function MealDetails() {
     }
   }
 
+  function handleFavoriteClick() {
+    if (isGuest) {
+      setShowFavoritePrompt((current) => !current);
+      return;
+    }
+    toggleFavorite(meal);
+  }
+
   async function handleAddToBasket() {
     if (!price || !Number.isFinite(Number(price)) || Number(price) <= 0) {
       setMessage("Please enter a valid price.");
@@ -127,7 +150,9 @@ function MealDetails() {
 
         <section className="meal-details-hero">
           <div className="meal-details-image">
-            <img src={meal.strMealThumb} alt={meal.strMeal} />
+            {meal.strMealThumb && (
+              <img src={meal.strMealThumb} alt={meal.strMeal} />
+            )}
           </div>
 
           <div className="meal-details-intro">
@@ -139,7 +164,7 @@ function MealDetails() {
               <button
                 type="button"
                 className={`meal-details-favorite ${favorite ? "active" : ""}`}
-                onClick={() => toggleFavorite(meal)}
+                onClick={handleFavoriteClick}
                 aria-label={
                   favorite
                     ? `Remove ${meal.strMeal} from favorites`
@@ -151,9 +176,14 @@ function MealDetails() {
               </button>
             </div>
 
+            {isGuest && showFavoritePrompt && (
+              <SignInPrompt inline message="Sign in to save favorites." />
+            )}
+
             <div className="meal-details-meta">
               <span>{meal.strCategory}</span>
               <span>{meal.strArea}</span>
+              {meal.ownerName && <span>By {meal.ownerName}</span>}
             </div>
 
             {meal.strTags && (
@@ -234,6 +264,12 @@ function MealDetails() {
               <p className="basket-message" role="status">
                 {message}
               </p>
+            )}
+            {basketIsGuest && message && (
+              <SignInPrompt
+                inline
+                message="Your basket is only saved on this device. Sign in to keep it with your account."
+              />
             )}
             {basketError && (
               <p className="basket-message" role="alert">

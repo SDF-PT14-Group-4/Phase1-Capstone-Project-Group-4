@@ -1,13 +1,26 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../../hooks/useFavorites.js";
+import SignInPrompt from "../common/SignInPrompt.jsx";
 
 function MealCard({ meal }) {
   const {
     toggleFavorite,
     isFavorite,
+    isGuest,
   } = useFavorites();
+  const [showPrompt, setShowPrompt] = useState(false);
 
   const favorite = isFavorite(meal.idMeal);
+
+  function handleFavoriteClick() {
+    // Guests cannot save anything, so explain why instead of doing nothing.
+    if (isGuest) {
+      setShowPrompt((current) => !current);
+      return;
+    }
+    toggleFavorite(meal);
+  }
 
   return (
     <article className="meal-card">
@@ -22,7 +35,7 @@ function MealCard({ meal }) {
           className={`favorite-button ${
             favorite ? "active" : ""
           }`}
-          onClick={() => toggleFavorite(meal)}
+          onClick={handleFavoriteClick}
           aria-label={
             favorite
               ? `Remove ${meal.strMeal} from favorites`
@@ -55,6 +68,10 @@ function MealCard({ meal }) {
         <Link to={`/meal/${meal.idMeal}`}>
           View Recipe
         </Link>
+
+        {isGuest && showPrompt && (
+          <SignInPrompt inline message="Sign in to save favorites." />
+        )}
       </div>
     </article>
   );

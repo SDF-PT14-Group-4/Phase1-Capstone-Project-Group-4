@@ -12,11 +12,22 @@ migrate = Migrate()
 jwt = JWTManager()
 
 
+def _int_env(name, default):
+    try:
+        return max(60, int(os.getenv(name, default)))
+    except (TypeError, ValueError):
+        return default
+
+
 def create_app(test_config=None):
+    from .security import ensure_secrets, register_jwt_handlers
+
     app = Flask(__name__)
     app.config.from_mapping(
-        SECRET_KEY=os.getenv("SECRET_KEY", "development-only-change-me"),
-        JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY", "development-only-change-me"),
+        # No fallback values: ensure_secrets() below refuses to start without real ones.
+        SECRET_KEY=os.getenv("SECRET_KEY"),
+        JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY"),
+        FLASK_DEBUG_ENV=os.getenv("FLASK_DEBUG", ""),
         SQLALCHEMY_DATABASE_URI=os.getenv(
             "DATABASE_URL",
             "postgresql+psycopg://postgres:postgres@localhost:5432/globaltaste",
@@ -26,14 +37,17 @@ def create_app(test_config=None):
             "MEALDB_BASE_URL", "https://www.themealdb.com/api/json/v1/1"
         ),
         FRONTEND_ORIGIN=os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"),
-        JWT_ACCESS_TOKEN_EXPIRES=3600,
+        JWT_ACCESS_TOKEN_EXPIRES=_int_env("JWT_ACCESS_TOKEN_EXPIRES_SECONDS", 3600),
     )
     if test_config:
         app.config.update(test_config)
 
+    ensure_secrets(app)
+
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    register_jwt_handlers(jwt)
 
     @app.after_request
     def add_cors_headers(response):
@@ -52,8 +66,12 @@ def create_app(test_config=None):
 
     from . import models  # noqa: F401
     from .routes import api, ADMIN_PAGE
+    from .account import account
+    from .custom_meals import custom_meals
 
     app.register_blueprint(api, url_prefix="/api")
+    app.register_blueprint(account, url_prefix="/api")
+    app.register_blueprint(custom_meals, url_prefix="/api")
 
     @app.get("/")
     def index():

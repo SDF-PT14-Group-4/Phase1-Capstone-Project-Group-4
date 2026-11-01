@@ -8,6 +8,12 @@ const API_BASE_URL = (
 
 const AUTH_STORAGE_KEY = "globaltaste.auth";
 
+export { API_BASE_URL };
+
+export const PASSWORD_MIN_LENGTH = 10;
+export const PASSWORD_HINT =
+  "Use at least 10 characters with a letter and a number, symbol or space. Avoid common passwords and your email name.";
+
 export class AuthApiError extends Error {
   constructor(message, code = "AUTH_REQUEST_FAILED", status = 0) {
     super(message);
@@ -69,6 +75,25 @@ export async function authenticate(path, credentials) {
 
   return {
     accessToken: data.accessToken,
-    user: { id: data.user.id, email: data.user.email },
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      ...(typeof data.user.displayName === "string" && data.user.displayName
+        ? { displayName: data.user.displayName }
+        : {}),
+    },
   };
+}
+
+// Tells the server to end this session. Best effort: the local session is
+// cleared by the caller whether or not this request succeeds.
+export async function endSession(accessToken) {
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch {
+    // Offline or server down: nothing more to do.
+  }
 }

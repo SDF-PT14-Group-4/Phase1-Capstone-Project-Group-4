@@ -274,3 +274,32 @@
     padding: var(--space-lg) 1rem;
   }
 }
+
+/* Shown after the server ends a session (expired, revoked, password changed). */
+.session-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-error);
+  color: #fff;
+  font-size: var(--text-sm);
+}
+
+.session-notice a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.session-notice button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: var(--text-lg);
+  cursor: pointer;
+}
