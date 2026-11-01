@@ -1,11 +1,11 @@
 import os
 
-from flask import Flask, jsonify
-from flask_cors import CORS
+from flask import Flask, jsonify, render_template_string, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from sqlalchemy.exc import IntegrityError
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -34,12 +34,41 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app, origins=app.config["FRONTEND_ORIGIN"])
+
+    @app.after_request
+    def add_cors_headers(response):
+        origin = request.headers.get("Origin")
+        allowed_origins = app.config["FRONTEND_ORIGIN"]
+        if isinstance(allowed_origins, str):
+            allowed_origins = [
+                o.strip().rstrip("/") for o in allowed_origins.split(",") if o.strip()
+            ]
+        if origin in allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            response.headers.add("Vary", "Origin")
+        return response
 
     from . import models  # noqa: F401
-    from .routes import api
+    from .routes import api, ADMIN_PAGE
 
     app.register_blueprint(api, url_prefix="/api")
+
+    @app.get("/")
+    def index():
+        best = request.accept_mimetypes.best_match(["application/json", "text/html"])
+        if best == "text/html":
+            return render_template_string(
+                ADMIN_PAGE,
+                login_url=url_for("api.login"),
+                customers_url=url_for("api.list_customers"),
+            )
+        return jsonify({
+            "message": "Welcome to the GlobalTaste Backend",
+            "status": "healthy",
+            "version": "1.0.0",
+        })
 
     @app.get("/api/health")
     def health():

@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Loading from "../components/loading";
 
-const BASE_URL =
-  "https://www.themealdb.com/api/json/v1/1";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD
+    ? "https://phase1-capstone-project-group-4.onrender.com/api"
+    : "/api")
+).replace(/\/+$/, "");
 
 export default function Cuisines() {
   const [cuisines, setCuisines] = useState([]);
@@ -13,10 +17,7 @@ export default function Cuisines() {
   useEffect(() => {
     async function loadCuisines() {
       try {
-        const response = await fetch(
-          `${BASE_URL}/list.php?a=list`
-        );
-
+        const response = await fetch(`${API_BASE_URL}/meals/cuisines`);
         if (!response.ok) {
           throw new Error("Failed to load cuisines.");
         }

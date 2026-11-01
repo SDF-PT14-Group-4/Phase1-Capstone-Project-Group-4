@@ -252,6 +252,14 @@
   font-weight: 600;
 }
 
+.price-description {
+  font-size: 12px;
+  color: #888888;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 260px;
+}
 
 /* =================================
    Video
@@ -337,5 +345,9 @@
 .meal-details-favorite {
   width: 2.75rem;
   height: 2.75rem;
+}
+
+.price-description {
+  max-width: 100%;
 }
 }
