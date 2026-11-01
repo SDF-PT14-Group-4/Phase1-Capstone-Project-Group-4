@@ -99,6 +99,9 @@
 
   --container-width: 1200px;
   --content-width: 960px;
+  --page-padding-desktop: 32px;
+  --page-padding-tablet: 24px;
+  --page-padding-mobile: 16px;
 
   /* ================================
      Transitions
