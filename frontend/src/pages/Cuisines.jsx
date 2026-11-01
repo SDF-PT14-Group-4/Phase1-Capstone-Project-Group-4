@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Loading from "../components/Loading";
 
 const BASE_URL =
   "https://www.themealdb.com/api/json/v1/1";
@@ -49,10 +50,8 @@ export default function Cuisines() {
       </section>
 
       {loading && (
-        <p className="cuisine-message">
-          Loading cuisines...
-        </p>
-      )}
+        <Loading message="Loading cuisines..." />
+        )}
 
       {error && (
         <p

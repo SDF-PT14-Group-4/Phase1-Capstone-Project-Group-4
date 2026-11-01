@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
 import "./Planner.css";
+import Loading from "../components/Loading";
 
 function Planner() {
   const {
@@ -73,7 +74,14 @@ function Planner() {
           />
 
           <button type="submit" disabled={loading}>
-            {loading ? "Searching..." : "Search"}
+            {loading ? (
+              <>
+                <span className="button-spinner"></span>
+                Searching...
+              </>
+              ) : (
+                "Search"
+              )}
           </button>
         </form>
 

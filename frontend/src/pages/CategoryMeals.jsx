@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import MealGrid from "../components/meal/MealGrid";
 import { getMealsByCategory } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/Loading";
 
 export default function CategoryMeals() {
   const { category } = useParams();
@@ -39,17 +40,23 @@ export default function CategoryMeals() {
   const selectionError = decodedCategory ? "" : "No category was selected.";
   const displayedError = error || selectionError;
 
-  return (
-    <main className="discovery-page listing-page">
-      <h1>{decodedCategory} Meals</h1>
 
-      {loading && decodedCategory && (
-        <p>Loading {decodedCategory} meals...</p>
-      )}
+return (
+  <main className="discovery-page listing-page">
+    <h1>{decodedCategory} Meals</h1>
 
-      {displayedError && <p role="alert">{displayedError}</p>}
+    {loading && (
+      <Loading message={`Loading ${decodedCategory || "category"} meals...`} />
+    )}
 
-      {!loading && !displayedError && <MealGrid meals={meals} />}
-    </main>
-  );
+    {displayedError && (
+      <p role="alert">{displayedError}</p>
+    )}
+
+    {!loading && !displayedError && (
+      <MealGrid meals={meals} />
+    )}
+  </main>
+);
+
 }

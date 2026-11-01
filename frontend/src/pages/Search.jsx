@@ -2,6 +2,7 @@ import { useState } from "react";
 import MealGrid from "../components/meal/MealGrid";
 import { searchMeals } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/Loading";
 
 function Search() {
   const [query, setQuery] = useState("");
@@ -58,7 +59,14 @@ function Search() {
           placeholder="Try “chicken”, “pasta” or “soup”"
         />
         <button className="discovery-button discovery-button-primary" type="submit" disabled={loading}>
-          {loading ? "Searching..." : "Search"}
+          {loading ? (
+            <>
+              <span className="button-spinner"></span>
+              "Searching..."
+            </> 
+          ): (
+            "Search"
+          )}
         </button>
       </form>
 
