@@ -1,21 +1,23 @@
 # GlobalTaste Test Cases
 
 ## 1. Scope
-This test suite covers the core navigation and user-flow checks for the GlobalTaste meal discovery app. The app currently includes these main routes:
+This test suite covers the GlobalTaste meal discovery application across its React frontend and Flask backend. It includes:
 
-- Home
-- Search
-- Meal Details
-- Categories
-- Favorites
-- Planner
-- Basket
-- Surprise Me
+- Core navigation and meal discovery flows.
+- Authentication and protected API access.
+- Favorites, planner, and basket operations.
+- User data isolation and admin authorization.
+- Input validation and security checks.
+- Custom meal functionality, including CRUD operations, ownership and visibility.
 
 ## 2. Assumptions
-- The app is a React single-page application built with React Router.
-- The current implementation is a UI shell, and some user features are expected to be added in later phases.
-- The test cases below are written to validate both the existing screens and the likely functional requirements from the project brief.
+- The frontend is a React single-page application using React Router.
+- The backend is a Flask API using SQLAlchemy and a PostgreSQL production database.
+- Backend automated tests use an isolated in-memory SQLite database.
+- Authenticated API requests use JWT bearer tokens.
+- Tests involving multiple users require separate test accounts.
+- A test is not considered passed until its expected result has been observed and recorded.
+- Features awaiting integration must be marked pending.
 
 ## 3. Functional Test Cases
 
@@ -266,8 +268,15 @@ This test suite covers the core navigation and user-flow checks for the GlobalTa
 - All main navigation links work correctly.
 - The app displays a consistent layout across all routes.
 - Meal detail pages render dynamic content using the URL parameter.
-- Search, favorites, basket, and surprise flows each show meaningful empty states and valid results.
-- The UI handles invalid routes and missing data without crashing.
+- Search, favorites, basket, and surprise flows show meaningful empty states and valid results.
+- Registration and login validate user input and protect credentials.
+- Protected API endpoints reject unauthenticated requests.
+- User-owned data is isolated between accounts.
+- Admin endpoints enforce role-based authorization.
+- Invalid tokens and unsafe input do not grant unauthorized access.
+- Custom meal CRUD, ownership and visibility rules are covered by automated backend tests.
+- The UI and API handle invalid routes, missing data, and invalid requests safely.
+- Test results are recorded accurately, with unexecuted tests marked Not Run or Pending.
 
 ## 6. Priority Summary
 - High priority: TC-01, TC-02, TC-03, TC-04, TC-05, TC-10, TC-12, TC-16, TC-19
@@ -279,11 +288,104 @@ This test suite is based on the current screen structure and app routes in the p
 
 ## 8. Automated execution and coverage
 
-Vitest and Testing Library automate the app flows in `frontend/src/test/appFlows.test.jsx`, plus the focused tests under `frontend/src/pages/__tests__/` and `frontend/src/test/`. Run the suite from `frontend/`:
+### Frontend
+Vitest and Testing Library automate app flows in `frontend/src/test/appFlows.test.jsx`, plus focused tests under `frontend/src/pages/__tests__/` and `frontend/src/test/`.
 
-```bash
-npm test
-npm run test:coverage
-```
+Run from `frontend/`:
 
-The coverage command reports statement, branch, function, and line coverage and writes HTML/LCOV output to `frontend/coverage/`. CI runs this command and requires at least 45% statements, 60% branches, 50% functions, and 45% lines. `TEST_MATRIX.csv` records automated outcomes; TC-14 remains a manual check because a unit test cannot establish that the production web server correctly serves the app shell on a refreshed deep link.
+    npm test
+    npm run test:coverage
+
+The coverage command reports statement, branch, function, and line coverage. CI requires at least 45% statements, 60% branches, 50% functions, and 45% lines. TC-14 remains a manual production deep-link refresh check.
+
+### Backend
+Backend tests use pytest and fixtures in `backend/tests/conftest.py`. Each test uses an isolated in-memory SQLite database.
+
+Run from `backend/` with the virtual environment activated:
+
+    source .venv/bin/activate
+    python -m pytest -q
+
+Latest full backend test run: **89 tests passed in 16.75 seconds**. The dedicated security and account test file also passed **74 tests in 14.18 seconds**. Coverage includes authentication, protected endpoints, user data isolation, planner and basket operations, meal discovery, admin authorization/CRUD, account security and custom meals.
+
+### Phase 3 QA status
+Existing automated results are recorded separately from manual security checks. Automated tests have verified JWT tampering and expiry, API logout and token revocation, and malformed JSON rejection. Production HTTP-level CORS checks have passed for the configured Netlify origin, OPTIONS preflight, and an unconfigured origin. Browser-based CORS behavior, manual browser session behavior, unsupported content types, injection-style inputs, and oversized payload handling still require verification.
+
+Custom meal CRUD, ownership and visibility have passed automated backend tests. Frontend workflows and the production database migration still require separate verification.
+
+A passing automated baseline does not mean that every Phase 3 manual or security test has passed. Update `TEST_MATRIX.csv` Actual Result and Status fields only after running each test.
+
+## 9. Phase 3 Authentication, Security and Data Resource Tests
+
+### TC-26: Registration validation and duplicate account prevention
+- **Priority:** High
+- **Steps:** Register with valid details, then try registering again with the same email. Also test invalid email and a password shorter than eight characters.
+- **Expected Result:** Valid registration succeeds; duplicate registration is rejected; invalid details return a validation error.
+
+### TC-27: Login with valid and invalid credentials
+- **Priority:** High
+- **Steps:** Log in using a valid account, then try an incorrect password.
+- **Expected Result:** Valid credentials authenticate the user; invalid credentials are rejected without exposing sensitive information.
+
+### TC-28: Protected API endpoints reject unauthenticated requests
+- **Priority:** High
+- **Steps:** Send requests to profile, favorites, planner and basket endpoints without an authorization token.
+- **Expected Result:** Protected endpoints reject requests without valid authentication.
+
+### TC-29: User data is isolated between accounts
+- **Priority:** High
+- **Steps:** Create two accounts. Add favorites, planner entries and basket items under the first account. Sign in as the second account and inspect those resources.
+- **Expected Result:** Each account can access and modify only its own private data.
+
+### TC-30: Admin endpoints enforce role-based access
+- **Priority:** High
+- **Steps:** Access admin endpoints without a token, with a normal user token, and with an authorized admin token.
+- **Expected Result:** Unauthenticated requests are rejected, normal users are forbidden, and authorized admins are allowed.
+
+### TC-31: Admin can create, view, update and delete admin meals
+- **Priority:** High
+- **Steps:** As an authorized admin, create an admin meal, retrieve it, update it and delete it.
+- **Expected Result:** Authorized CRUD operations succeed and deleted records are no longer available.
+
+### TC-32: Tampered and expired JWT tokens are rejected
+- **Priority:** High
+- **Steps:** Send protected requests using a modified token and an expired token.
+- **Expected Result:** Invalid or expired tokens do not grant access.
+
+### TC-33: Logout and browser session behavior
+- **Priority:** High
+- **Steps:** Log in, refresh the browser, navigate to a protected page, log out, and attempt to revisit protected pages.
+- **Expected Result:** Session behavior matches the implemented authentication design. After logout, protected pages and API resources must not remain accessible as an authenticated user.
+
+### TC-34: CORS permits only configured frontend origins
+- **Priority:** Medium
+- **Steps:** Send API requests with an allowed frontend origin and with an origin that is not configured. Send an OPTIONS preflight request with POST, Authorization and Content-Type headers.
+- **Expected Result:** Cross-origin access follows the configured CORS policy.
+- **Actual Result:** The deployed Netlify origin received the correct CORS headers. The OPTIONS preflight returned HTTP 200 with the required allowed-origin, allowed-methods and allowed-headers values. A request from https://example.com received no Access-Control-Allow-Origin header.
+- **Status:** Passed for production HTTP-level checks; browser-based CORS testing remains unverified.
+- **Evidence:** Verified against the deployed Render API using curl on 2026-11-01.
+
+### TC-35: Malformed JSON and unsupported content types
+- **Priority:** Medium
+- **Steps:** Submit malformed JSON and requests with unsupported content types to API endpoints.
+- **Expected Result:** Requests are rejected safely with appropriate client errors; the server does not expose internal details.
+
+### TC-36: SQL injection-style input handling
+- **Priority:** High
+- **Steps:** Submit SQL injection-style strings in relevant search and text input fields.
+- **Expected Result:** Inputs are handled as data, not executable SQL. No unauthorized access or data modification occurs.
+
+### TC-37: Oversized request payload handling
+- **Priority:** Medium
+- **Steps:** Submit a request body larger than the configured request size limit.
+- **Expected Result:** The API rejects oversized requests safely without crashing.
+
+### TC-38: Custom meal CRUD and ownership
+- **Priority:** High
+- **Steps:** Create a custom meal as one user, view it, update it and delete it. Attempt to access or modify another user's private custom meal.
+- **Expected Result:** Owners can manage their own custom meals. Other users cannot access or modify private meals.
+
+### TC-39: Custom meal visibility
+- **Priority:** High
+- **Steps:** Create private and public meals. Access them as the owner, another authenticated user and a guest.
+- **Expected Result:** Public meals follow the implemented public visibility rules; private meals remain restricted to their owners.
