@@ -266,6 +266,7 @@ export function PlannerProvider({ children }) {
   return (
     <PlannerContext.Provider
       value={{
+        isGuest: !accessToken,
         planner,
         addMeal,
         removeMeal,

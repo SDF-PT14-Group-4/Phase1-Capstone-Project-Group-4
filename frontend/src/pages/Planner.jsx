@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
+import { useAuth } from "../hooks/useAuth.js";
+import SignInPrompt from "../components/common/SignInPrompt.jsx";
+import { listMyMeals } from "../services/customMealService.js";
 import "./Planner.css";
 
 
@@ -13,15 +16,51 @@ function Planner() {
   clearDay,
   plannerLoading,
   plannerError,
+  isGuest,
 } = usePlanner();
+  const { accessToken } = useAuth();
 
   const [query, setQuery] = useState("");
   const [meals, setMeals] = useState([]);
   const [selectedDay, setSelectedDay] = useState("monday");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Tagged with the token it was loaded for, so one account's meals are never
+  // shown to the next account that signs in on this device.
+  const [customState, setCustomState] = useState({ token: null, meals: [] });
 
   const days = Object.keys(planner);
+
+  // The user's own meals can be planned just like meals from the search.
+  useEffect(() => {
+    if (!accessToken) return undefined;
+    let active = true;
+    listMyMeals(accessToken)
+      .then((items) => {
+        if (!active) return;
+        // Ignore anything that is not a well-formed custom meal.
+        const valid = items.filter(
+          (item) =>
+            item &&
+            typeof item.name === "string" &&
+            typeof item.mealId === "string" &&
+            item.mealData
+        );
+        setCustomState({ token: accessToken, meals: valid });
+      })
+      .catch(() => {
+        if (active) setCustomState({ token: accessToken, meals: [] });
+      });
+    return () => {
+      active = false;
+    };
+  }, [accessToken]);
+
+  const visibleCustomMeals =
+    accessToken && customState.token === accessToken ? customState.meals : [];
+  const customMatches = visibleCustomMeals.filter((meal) =>
+    meal.name.toLowerCase().includes(query.trim().toLowerCase())
+  );
 
   async function handleSearch(e) {
     e.preventDefault();
@@ -72,6 +111,13 @@ function Planner() {
         <h1>Weekly Meal Planner</h1>
         <p>Search for meals and organize your meals for the week.</p>
       </header>
+
+      {isGuest && (
+        <SignInPrompt
+          title="Sign in to use your meal planner"
+          message="The planner saves a meal for each day of your week to your account, so it is there whenever you come back. You can still search for meals below, then sign in to plan them."
+        />
+      )}
 
       <section className="planner-search">
         <form onSubmit={handleSearch} className="planner-search-form">
@@ -148,6 +194,46 @@ function Planner() {
         </select>
       </section>
 
+      {!isGuest && customMatches.length > 0 && (
+        <section className="planner-section">
+          <div className="planner-section-header">
+            <h2>Your Custom Meals</h2>
+            <Link to="/my-meals">Manage my meals</Link>
+          </div>
+          <div className="planner-meal-grid">
+            {customMatches.map((meal) => (
+              <article className="planner-meal-card" key={meal.mealId}>
+                {meal.image && (
+                  <img
+                    src={meal.image}
+                    alt={meal.name}
+                    className="planner-meal-image"
+                  />
+                )}
+                <div className="planner-meal-content">
+                  <h3>{meal.name}</h3>
+                  {meal.category && <p>{meal.category}</p>}
+                  {meal.cuisine && <p>{meal.cuisine}</p>}
+                  <button
+                    type="button"
+                    onClick={() => handleAddMeal(meal.mealData)}
+                    disabled={plannerLoading}
+                  >
+                    {`Add to ${formatDay(selectedDay)}`}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!isGuest && visibleCustomMeals.length === 0 && (
+        <p className="planner-empty">
+          Want to plan a meal that is not in the search? <Link to="/my-meals">Create your own meal</Link>.
+        </p>
+      )}
+
       <section className="planner-section">
         <div className="planner-section-header">
           <h2>Search Results</h2>
@@ -164,11 +250,13 @@ function Planner() {
           <div className="planner-meal-grid">
             {meals.map((meal) => (
               <article className="planner-meal-card" key={meal.idMeal}>
-                <img
-                  src={meal.strMealThumb}
-                  alt={meal.strMeal}
-                  className="planner-meal-image"
-                />
+                {meal.strMealThumb && (
+                  <img
+                    src={meal.strMealThumb}
+                    alt={meal.strMeal}
+                    className="planner-meal-image"
+                  />
+                )}
 
                 <div className="planner-meal-content">
                   <h3>{meal.strMeal}</h3>
@@ -181,15 +269,19 @@ function Planner() {
                     <p>{meal.strArea}</p>
                   )}
 
-                  <button
-  type="button"
-  onClick={() => handleAddMeal(meal)}
-  disabled={plannerLoading}
->
-  {plannerLoading
-    ? "Loading plan..."
-    : `Add to ${formatDay(selectedDay)}`}
-</button>
+                  {isGuest ? (
+                    <SignInPrompt inline message="Sign in to plan this meal." />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleAddMeal(meal)}
+                      disabled={plannerLoading}
+                    >
+                      {plannerLoading
+                        ? "Loading plan..."
+                        : `Add to ${formatDay(selectedDay)}`}
+                    </button>
+                  )}
                 </div>
               </article>
             ))}
@@ -197,6 +289,7 @@ function Planner() {
         )}
       </section>
 
+      {!isGuest && (
       <section className="planner-section">
         <div className="planner-section-header">
           <h2>Your Weekly Plan</h2>
@@ -243,10 +336,12 @@ function Planner() {
     to={`/meal/${meal.idMeal}`}
     className="planned-meal-link"
   >
-    <img
-      src={meal.strMealThumb}
-      alt={meal.strMeal}
-    />
+    {meal.strMealThumb && (
+      <img
+        src={meal.strMealThumb}
+        alt={meal.strMeal}
+      />
+    )}
 
     <div className="planned-meal-info">
       <h4>{meal.strMeal}</h4>
@@ -271,6 +366,7 @@ function Planner() {
           ))}
         </div>
       </section>
+      )}
     </main>
   );
 }

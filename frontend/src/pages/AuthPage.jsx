@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { PASSWORD_HINT, PASSWORD_MIN_LENGTH } from "../services/authService";
 import "./Auth.css";
 
 export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
   const { isAuthenticated, login, register } = useAuth();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -13,7 +15,13 @@ export default function AuthPage({ mode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    // Send people back to the page that asked them to sign in.
+    const from = location.state?.from;
+    const destination =
+      from && typeof from.pathname === "string" && from.pathname.startsWith("/")
+        ? `${from.pathname}${from.search || ""}${from.hash || ""}`
+        : "/";
+    return <Navigate to={destination} replace />;
   }
 
   async function handleSubmit(event) {
@@ -70,22 +78,27 @@ export default function AuthPage({ mode }) {
             name="password"
             type="password"
             autoComplete={isRegister ? "new-password" : "current-password"}
-            minLength={8}
+            minLength={isRegister ? PASSWORD_MIN_LENGTH : undefined}
             maxLength={128}
             required
+            aria-describedby={isRegister ? "auth-password-hint" : undefined}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
 
           {isRegister && (
             <>
+              <p id="auth-password-hint" className="auth-hint">
+                {PASSWORD_HINT}
+              </p>
+
               <label htmlFor="auth-confirm-password">Confirm password</label>
               <input
                 id="auth-confirm-password"
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
-                minLength={8}
+                minLength={PASSWORD_MIN_LENGTH}
                 maxLength={128}
                 required
                 value={confirmPassword}

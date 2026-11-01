@@ -6,13 +6,29 @@ from flask import render_template_string, url_for
 
 
 
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask import Blueprint, current_app, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import select
 
 from . import db
+from .custom_meals import resolve_meal_fields
 from .mealdb import MealServiceError, get_mealdb
 from .models import AdminMeal, BasketItem, FavoriteMeal, PlannedMeal, User
+from .security import (
+    LOGIN_FAILURE_LIMIT,
+    LOGIN_IP_FAILURE_LIMIT,
+    LOGIN_WINDOW_SECONDS,
+    REGISTER_LIMIT,
+    REGISTER_WINDOW_SECONDS,
+    burn_password_check,
+    clear_events,
+    client_ip,
+    count_events,
+    password_problem,
+    record_event,
+    session_response,
+    too_many_requests,
+)
 
 api = Blueprint("api", __name__)
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -132,6 +148,14 @@ def mealdb_response(path, params=None):
 
 @api.post("/auth/register")
 def register():
+    config = current_app.config
+    ip_bucket = f"register:ip:{client_ip()}"
+    if count_events(ip_bucket, config.get("REGISTER_WINDOW_SECONDS", REGISTER_WINDOW_SECONDS)) >= config.get(
+        "REGISTER_LIMIT", REGISTER_LIMIT
+    ):
+        return too_many_requests(config, "REGISTER_WINDOW_SECONDS", REGISTER_WINDOW_SECONDS)
+    record_event(ip_bucket)
+
     body = json_object()
     if body is None:
         return error("A JSON request body is required.", "INVALID_REQUEST", 400)
@@ -139,10 +163,11 @@ def register():
     password = body.get("password")
     if not isinstance(email, str) or len(email) > 254 or not EMAIL_PATTERN.fullmatch(email.strip()):
         return error("A valid email address is required.", "INVALID_EMAIL", 400)
-    if not isinstance(password, str) or len(password) < 8 or len(password) > 128:
-        return error("Password must be between 8 and 128 characters.", "INVALID_PASSWORD", 400)
-
     normalized_email = email.strip().lower()
+    problem = password_problem(password, normalized_email)
+    if problem:
+        return error(problem, "INVALID_PASSWORD", 400)
+
     if db.session.scalar(select(User).where(User.email == normalized_email)):
         return error("An account with this email already exists.", "EMAIL_IN_USE", 409)
 
@@ -150,14 +175,13 @@ def register():
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
-    return jsonify({
-        "accessToken": create_access_token(identity=str(user.id)),
-        "user": {"id": user.id, "email": user.email},
-    }), 201
+    return jsonify(session_response(user)), 201
 
 
 @api.post("/auth/login")
 def login():
+    config = current_app.config
+    window = config.get("LOGIN_WINDOW_SECONDS", LOGIN_WINDOW_SECONDS)
     body = json_object()
     if body is None:
         return error("A JSON request body is required.", "INVALID_REQUEST", 400)
@@ -165,22 +189,29 @@ def login():
     password = body.get("password")
     if not isinstance(email, str) or not isinstance(password, str):
         return error("Email and password are required.", "INVALID_CREDENTIALS", 400)
-    user = db.session.scalar(select(User).where(User.email == email.strip().lower()))
+
+    normalized_email = email.strip().lower()[:254]
+    email_bucket = f"login:email:{normalized_email}"
+    ip_bucket = f"login:ip:{client_ip()}"
+    # Lock out repeated failures per email (and per address) before checking the password,
+    # so guessing is slow whether or not the account exists.
+    if count_events(email_bucket, window) >= config.get("LOGIN_FAILURE_LIMIT", LOGIN_FAILURE_LIMIT) or count_events(
+        ip_bucket, window
+    ) >= config.get("LOGIN_IP_FAILURE_LIMIT", LOGIN_IP_FAILURE_LIMIT):
+        return too_many_requests(config, "LOGIN_WINDOW_SECONDS", LOGIN_WINDOW_SECONDS)
+
+    user = db.session.scalar(select(User).where(User.email == normalized_email))
+    if user is None:
+        burn_password_check(password)
     if user is None or not user.check_password(password):
+        record_event(email_bucket)
+        record_event(ip_bucket)
         return error("Email or password is incorrect.", "INVALID_CREDENTIALS", 401)
+
+    clear_events(email_bucket)
     user.last_login_at = datetime.now(timezone.utc)
     db.session.commit()
-    return jsonify({
-        "accessToken": create_access_token(identity=str(user.id)),
-        "user": {"id": user.id, "email": user.email},
-    })
-
-
-@api.get("/me")
-@jwt_required()
-def profile():
-    user = current_user()
-    return jsonify({"id": user.id, "email": user.email, "createdAt": user.created_at.isoformat()})
+    return jsonify(session_response(user))
 
 
 @api.get("/me/favorites")
@@ -200,6 +231,9 @@ def add_favorite():
     if fields is None:
         return error("A valid meal is required.", "INVALID_MEAL", 400)
     user_id = current_user().id
+    fields = resolve_meal_fields(fields, user_id)
+    if fields is None:
+        return error("That custom meal is not available.", "CUSTOM_MEAL_NOT_FOUND", 404)
     record = db.session.scalar(
         select(FavoriteMeal).where(
             FavoriteMeal.user_id == user_id, FavoriteMeal.meal_id == fields["meal_id"]
@@ -253,6 +287,9 @@ def add_planned_meal():
         return error("A valid weekday and meal are required.", "INVALID_PLANNER_ENTRY", 400)
     day = day.lower()
     user_id = current_user().id
+    fields = resolve_meal_fields(fields, user_id)
+    if fields is None:
+        return error("That custom meal is not available.", "CUSTOM_MEAL_NOT_FOUND", 404)
     record = db.session.scalar(
         select(PlannedMeal).where(
             PlannedMeal.user_id == user_id,
@@ -323,6 +360,9 @@ def add_basket_item():
         return error("Quantity must be an integer from 1 to 1000 and price must be nonnegative.", "INVALID_BASKET_ITEM", 400)
 
     user_id = current_user().id
+    fields = resolve_meal_fields(fields, user_id)
+    if fields is None:
+        return error("That custom meal is not available.", "CUSTOM_MEAL_NOT_FOUND", 404)
     record = db.session.scalar(
         select(BasketItem).where(
             BasketItem.user_id == user_id, BasketItem.meal_id == fields["meal_id"]
