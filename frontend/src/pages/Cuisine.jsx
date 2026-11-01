@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCuisines } from "../services/backendMealService";
 import "./Discovery.css";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 
 export default function Cuisines() {
   const [cuisines, setCuisines] = useState([]);

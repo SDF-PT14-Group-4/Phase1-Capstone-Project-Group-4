@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import MealGrid from "../components/meal/MealGrid";
 import { getMealsByCuisine } from "../services/backendMealService";
 import "./Discovery.css";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 
 export default function CuisineMeals() {
   const { cuisine } = useParams();

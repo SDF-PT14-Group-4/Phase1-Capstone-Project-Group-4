@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { searchMeals } from "../services/mealService";
 import { usePlanner } from "../context/usePlanner";
 import "./Planner.css";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 
 function Planner() {
   const {

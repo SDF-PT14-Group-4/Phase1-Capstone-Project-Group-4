@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getRandomMeal } from "../services/backendMealService";
 import "./Surprise.css";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 
 function Surprise() {
   const [meal, setMeal] = useState(null);

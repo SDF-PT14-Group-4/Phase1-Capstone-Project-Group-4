@@ -2,7 +2,7 @@ import { useState } from "react";
 import MealGrid from "../components/meal/MealGrid";
 import { searchMeals } from "../services/backendMealService";
 import "./Discovery.css";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 
 function Search() {
   const [query, setQuery] = useState("");
