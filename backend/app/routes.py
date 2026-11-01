@@ -1,5 +1,10 @@
 from decimal import Decimal, InvalidOperation
 import re
+import os
+from datetime import datetime, timezone
+from flask import render_template_string, url_for
+
+
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
@@ -7,7 +12,7 @@ from sqlalchemy import select
 
 from . import db
 from .mealdb import MealServiceError, get_mealdb
-from .models import BasketItem, FavoriteMeal, PlannedMeal, User
+from .models import AdminMeal, BasketItem, FavoriteMeal, PlannedMeal, User
 
 api = Blueprint("api", __name__)
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -62,13 +67,68 @@ def meal_fields(body):
         "meal_data": meal,
     }
 
+def admin_meal_fields(body):
+    meal = body.get("meal", body)
+
+    if not isinstance(meal, dict):
+        return None
+
+    name = meal.get("name", meal.get("strMeal"))
+    image = meal.get("image", meal.get("strMealThumb", ""))
+    category = meal.get("category", meal.get("strCategory", ""))
+    cuisine = meal.get("cuisine", meal.get("strArea", ""))
+
+    if not isinstance(name, str) or not name.strip() or len(name.strip()) > 255:
+        return None
+
+    if not all(isinstance(value, str) for value in (image, category, cuisine)):
+        return None
+
+    if len(category) > 120 or len(cuisine) > 120:
+        return None
+
+    meal_data = meal.get("mealData", meal.get("meal_data"))
+
+    if meal_data is None:
+        excluded = {
+            "name", "strMeal",
+            "image", "strMealThumb",
+            "category", "strCategory",
+            "cuisine", "strArea",
+        }
+        meal_data = {
+            key: value for key, value in meal.items()
+            if key not in excluded
+        }
+
+    if not isinstance(meal_data, dict):
+        return None
+
+    return {
+        "name": name.strip(),
+        "image": image.strip(),
+        "category": category.strip(),
+        "cuisine": cuisine.strip(),
+        "meal_data": meal_data,
+    }
+
+def serialize_admin_meal(meal):
+    return {
+        "id": meal.id,
+        "name": meal.name,
+        "image": meal.image,
+        "category": meal.category,
+        "cuisine": meal.cuisine,
+        "mealData": meal.meal_data,
+        "createdAt": meal.created_at.isoformat(),
+        "updatedAt": meal.updated_at.isoformat(),
+    }
 
 def mealdb_response(path, params=None):
     try:
         return jsonify(get_mealdb(path, params))
     except MealServiceError:
         return error("The meal service is temporarily unavailable.", "UPSTREAM_UNAVAILABLE", 502)
-
 
 @api.post("/auth/register")
 def register():
@@ -108,6 +168,8 @@ def login():
     user = db.session.scalar(select(User).where(User.email == email.strip().lower()))
     if user is None or not user.check_password(password):
         return error("Email or password is incorrect.", "INVALID_CREDENTIALS", 401)
+    user.last_login_at = datetime.now(timezone.utc)
+    db.session.commit()
     return jsonify({
         "accessToken": create_access_token(identity=str(user.id)),
         "user": {"id": user.id, "email": user.email},
@@ -368,3 +430,170 @@ def meals_by_cuisine(cuisine):
     if not cuisine.strip() or len(cuisine) > 120:
         return error("A valid cuisine is required.", "INVALID_CUISINE", 400)
     return mealdb_response("filter.php", {"a": cuisine.strip()})
+
+def is_admin(user):
+    admins = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
+    return user is not None and user.email in admins
+
+@api.get("/admin/meals")
+@jwt_required()
+def list_admin_meals():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meals = db.session.scalars(
+        select(AdminMeal).order_by(AdminMeal.created_at.desc())
+    ).all()
+
+    return jsonify({
+        "meals": [serialize_admin_meal(meal) for meal in meals]
+    })
+
+
+@api.post("/admin/meals")
+@jwt_required()
+def create_admin_meal():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    body = json_object()
+    fields = admin_meal_fields(body) if body else None
+
+    if fields is None:
+        return error("A valid meal is required.", "INVALID_MEAL", 400)
+
+    meal = AdminMeal(**fields)
+    db.session.add(meal)
+    db.session.commit()
+
+    return jsonify({"meal": serialize_admin_meal(meal)}), 201
+
+
+@api.put("/admin/meals/<int:meal_id>")
+@jwt_required()
+def update_admin_meal(meal_id):
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meal = db.session.get(AdminMeal, meal_id)
+
+    if meal is None:
+        return error("Meal not found.", "NOT_FOUND", 404)
+
+    body = json_object()
+    fields = admin_meal_fields(body) if body else None
+
+    if fields is None:
+        return error("A valid meal is required.", "INVALID_MEAL", 400)
+
+    for key, value in fields.items():
+        setattr(meal, key, value)
+
+    db.session.commit()
+
+    return jsonify({"meal": serialize_admin_meal(meal)})
+
+
+@api.delete("/admin/meals/<int:meal_id>")
+@jwt_required()
+def delete_admin_meal(meal_id):
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+
+    meal = db.session.get(AdminMeal, meal_id)
+
+    if meal is None:
+        return error("Meal not found.", "NOT_FOUND", 404)
+
+    db.session.delete(meal)
+    db.session.commit()
+
+    return "", 204
+
+@api.get("/admin/customers")
+@jwt_required()
+def list_customers():
+    if not is_admin(current_user()):
+        return error("Admin access required.", "FORBIDDEN", 403)
+    users = db.session.scalars(select(User).order_by(User.last_login_at.desc().nullslast())).all()
+    return jsonify({"customers": [{
+        "id": u.id,
+        "email": u.email,
+        "createdAt": u.created_at.isoformat(),
+        "lastLoginAt": u.last_login_at.isoformat() if u.last_login_at else None,
+        "favorites": len(u.favorites),
+        "plannedMeals": len(u.planned_meals),
+        "basketItems": len(u.basket_items),
+    } for u in users]})
+
+
+ADMIN_PAGE = """<!doctype html>
+<html><head><meta charset="utf-8"><title>GlobalTaste Admin</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:2rem}
+input,button{padding:.5rem;margin:.25rem 0}
+table{border-collapse:collapse;margin-top:1rem}
+th,td{border:1px solid #444;padding:.4rem .8rem;text-align:left}
+.recent{color:#4ade80}
+#error{color:#f87171}
+</style></head><body>
+<h1>GlobalTaste Admin</h1>
+<div id="login">
+  <input id="email" type="email" placeholder="Admin email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button id="go">Log in</button>
+  <p id="error"></p>
+</div>
+<div id="data" hidden>
+  <p id="summary"></p>
+  <table><thead><tr><th>ID</th><th>Email</th><th>Last login</th><th>Joined</th>
+  <th>Favorites</th><th>Planned</th><th>Basket</th></tr></thead><tbody id="rows"></tbody></table>
+</div>
+<script>
+const LOGIN_URL = {{ login_url|tojson }};
+const CUSTOMERS_URL = {{ customers_url|tojson }};
+const $ = (id) => document.getElementById(id);
+
+$("go").onclick = async () => {
+  $("error").textContent = "";
+  const res = await fetch(LOGIN_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({email: $("email").value, password: $("password").value}),
+  });
+  const login = await res.json();
+  if (!res.ok) { $("error").textContent = login.error?.message || "Login failed"; return; }
+
+  const r = await fetch(CUSTOMERS_URL, {headers: {Authorization: "Bearer " + login.accessToken}});
+  const data = await r.json();
+  if (!r.ok) { $("error").textContent = data.error?.message || "Not allowed"; return; }
+
+  $("login").hidden = true;
+  $("data").hidden = false;
+  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const recent = data.customers.filter(c => c.lastLoginAt && new Date(c.lastLoginAt) > dayAgo);
+  $("summary").textContent = recent.length + " logged in within the last 24h, " + data.customers.length + " users total";
+  const tbody = $("rows");
+  data.customers.forEach(c => {
+    const tr = document.createElement("tr");
+    const isRecent = c.lastLoginAt && new Date(c.lastLoginAt) > dayAgo;
+    const cells = [c.id, c.email, c.lastLoginAt ? new Date(c.lastLoginAt).toLocaleString() : "never",
+      new Date(c.createdAt).toLocaleDateString(), c.favorites, c.plannedMeals, c.basketItems];
+    cells.forEach((v, i) => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      if (i === 2 && isRecent) td.className = "recent";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+};
+</script></body></html>"""
+
+@api.get("/admin")
+def admin_page():
+    return render_template_string(
+        ADMIN_PAGE,
+        login_url=url_for("api.login"),
+        customers_url=url_for("api.list_customers"),
+    )

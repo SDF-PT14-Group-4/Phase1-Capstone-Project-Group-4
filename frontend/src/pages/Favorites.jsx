@@ -1,8 +1,10 @@
 import MealGrid from "../components/meal/MealGrid";
 import { useFavorites } from "../hooks/useFavorites.js";
+import { useAuth } from "../hooks/useAuth.js";
 
 export default function Favorites() {
-  const { favorites } = useFavorites();
+  const { favorites, loading, error, setError } = useFavorites();
+  const { isAuthenticated } = useAuth();
 
   return (
     <main className="favorites-page container">
@@ -19,10 +21,29 @@ export default function Favorites() {
         </p>
       </section>
 
-      {favorites.length === 0 ? (
+      {!isAuthenticated ? (
+        <section className="favorites-empty">
+          <h2>Sign in to view your favorites</h2>
+          <p>
+            Your saved recipes are connected to your account.
+            Sign in to access them across sessions.
+          </p>
+        </section>
+      ) : loading ? (
+        <section className="favorites-empty" aria-live="polite">
+          <p>Loading your favorites...</p>
+        </section>
+      ) : error ? (
+        <section className="favorites-empty" role="alert">
+          <h2>Unable to load favorites</h2>
+          <p>{error}</p>
+          <button type="button" onClick={() => setError("")}>
+            Dismiss
+          </button>
+        </section>
+      ) : favorites.length === 0 ? (
         <section className="favorites-empty">
           <h2>No favorites yet</h2>
-
           <p>
             Start exploring meals and save the recipes
             you would like to try.
@@ -32,9 +53,7 @@ export default function Favorites() {
         <>
           <div className="favorites-count">
             {favorites.length}{" "}
-            {favorites.length === 1
-              ? "favorite"
-              : "favorites"}
+            {favorites.length === 1 ? "favorite" : "favorites"}
           </div>
 
           <MealGrid meals={favorites} />

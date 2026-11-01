@@ -35,6 +35,7 @@
 }
 
 .home-hero h1 {
+  color: #24202b;
   max-width: 560px;
   margin: 0 0 18px;
   font-size: clamp(42px, 6vw, 68px);
@@ -345,6 +346,7 @@
   line-height: 1.5;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .category-card-content > span {

@@ -155,3 +155,133 @@ def test_meal_discovery_validates_search_and_handles_upstream_failure(client):
         response = client.get("/api/meals/random")
     assert response.status_code == 502
     assert response.json["error"]["code"] == "UPSTREAM_UNAVAILABLE"
+
+def test_admin_meal_endpoints_require_admin_access(client, auth_headers):
+    # No token: access must be rejected.
+    assert client.get("/api/admin/meals").status_code == 401
+
+    # A normal authenticated user must not access admin functionality.
+    response = client.get("/api/admin/meals", headers=auth_headers)
+    assert response.status_code == 403
+
+    response = client.post(
+        "/api/admin/meals",
+        json={"name": "Test Meal"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 403
+
+
+def test_admin_can_create_list_update_and_delete_meals(client, monkeypatch):
+    monkeypatch.setenv("ADMIN_EMAILS", "admin@example.com")
+
+    registered = client.post(
+        "/api/auth/register",
+        json={
+            "email": "admin@example.com",
+            "password": "correct horse battery",
+        },
+    )
+    assert registered.status_code == 201
+
+    headers = {
+        "Authorization": f"Bearer {registered.json['accessToken']}"
+    }
+
+    # Initially, the admin meal list should be empty.
+    response = client.get("/api/admin/meals", headers=headers)
+    assert response.status_code == 200
+    assert response.json == {"meals": []}
+
+    # Create a meal.
+    response = client.post(
+        "/api/admin/meals",
+        headers=headers,
+        json={
+            "name": "Kenyan Pilau",
+            "image": "https://example.test/pilau.jpg",
+            "category": "Dinner",
+            "cuisine": "Kenyan",
+            "mealData": {"ingredients": ["rice", "beef", "spices"]},
+        },
+    )
+    assert response.status_code == 201
+
+    meal = response.json["meal"]
+    meal_id = meal["id"]
+
+    assert meal["name"] == "Kenyan Pilau"
+    assert meal["category"] == "Dinner"
+
+    # Confirm the meal appears in the list.
+    response = client.get("/api/admin/meals", headers=headers)
+    assert response.status_code == 200
+    assert len(response.json["meals"]) == 1
+
+    # Update the meal.
+    response = client.put(
+        f"/api/admin/meals/{meal_id}",
+        headers=headers,
+        json={
+            "name": "Updated Kenyan Pilau",
+            "image": "https://example.test/updated-pilau.jpg",
+            "category": "Lunch",
+            "cuisine": "Kenyan",
+            "mealData": {"ingredients": ["rice", "beef"]},
+        },
+    )
+    assert response.status_code == 200
+    assert response.json["meal"]["name"] == "Updated Kenyan Pilau"
+
+    # Delete the meal.
+    response = client.delete(
+        f"/api/admin/meals/{meal_id}",
+        headers=headers,
+    )
+    assert response.status_code == 204
+
+    # Confirm it has been removed.
+    response = client.get("/api/admin/meals", headers=headers)
+    assert response.json == {"meals": []}
+
+def test_admin_meal_endpoints_validate_input_and_missing_records(client, monkeypatch):
+    monkeypatch.setenv("ADMIN_EMAILS", "admin@example.com")
+
+    registered = client.post(
+        "/api/auth/register",
+        json={
+            "email": "admin@example.com",
+            "password": "correct horse battery",
+        },
+    )
+    headers = {
+        "Authorization": f"Bearer {registered.json['accessToken']}"
+    }
+
+    # A meal without a name is invalid.
+    invalid = client.post(
+        "/api/admin/meals",
+        headers=headers,
+        json={"category": "Dinner"},
+    )
+    assert invalid.status_code == 400
+
+    # Non-dictionary mealData is invalid.
+    invalid = client.post(
+        "/api/admin/meals",
+        headers=headers,
+        json={"name": "Test Meal", "mealData": "not an object"},
+    )
+    assert invalid.status_code == 400
+
+    # Updating or deleting a meal that does not exist returns 404.
+    assert client.put(
+        "/api/admin/meals/9999",
+        headers=headers,
+        json={"name": "Missing Meal"},
+    ).status_code == 404
+
+    assert client.delete(
+        "/api/admin/meals/9999",
+        headers=headers,
+    ).status_code == 404
