@@ -225,10 +225,15 @@ function MealDetails() {
                 placeholder="Enter price"
               />
 
+              <p className="price-description">
+                The price details entered are for planning purposes and not for purchasing
+              </p>
+            </div>
+
               <button type="button" onClick={handleAddToBasket}>
                 Add to Basket
               </button>
-            </div>
+            
 
             {message && (
               <p className="basket-message" role="status">
