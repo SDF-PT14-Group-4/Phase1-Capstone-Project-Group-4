@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategories } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/loading";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -35,8 +36,7 @@ export default function Categories() {
           </p>
           <h1>Meal categories</h1>
         </header>
-
-        <p className="category-message">Loading categories...</p>
+        <Loading message="Loading meal categories..."/>
       </main>
     );
   }

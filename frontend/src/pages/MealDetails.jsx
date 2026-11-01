@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { useBasket } from "../hooks/useBasket.js";
+import Loading from "../components/loading";
 
 function MealDetails() {
   const { id } = useParams();
@@ -64,10 +65,10 @@ function MealDetails() {
   if (loading) {
     return (
       <main className="meal-details-page container">
-        <p className="meal-details-message">Loading meal details...</p>
+        <Loading message="Loading meal details..." />
       </main>
-    );
-  }
+  );
+}
 
   if (error || !meal) {
     return (
