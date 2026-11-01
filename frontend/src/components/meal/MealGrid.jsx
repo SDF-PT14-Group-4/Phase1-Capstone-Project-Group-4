@@ -1,12 +1,21 @@
+
 import MealCard from "./MealCard";
 
 export default function MealGrid({ meals }) {
   if (!Array.isArray(meals)) {
-    return <p>Unable to display meals.</p>;
+    return (
+      <p className="meal-grid-message">
+        Unable to display meals.
+      </p>
+    );
   }
 
   if (meals.length === 0) {
-    return <p>No meals found.</p>;
+    return (
+      <p className="meal-grid-message">
+        No meals found.
+      </p>
+    );
   }
 
   return (

@@ -66,7 +66,7 @@ function Planner() {
   }
 
   return (
-    <main className="planner-page">
+    <main className="planner-page container">
       <header className="planner-header">
         <h1>Weekly Meal Planner</h1>
         <p>Search for meals and organize your meals for the week.</p>
