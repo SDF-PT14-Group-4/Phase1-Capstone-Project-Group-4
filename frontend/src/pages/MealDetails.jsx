@@ -9,6 +9,7 @@ import {
   getCustomMealDetails,
   isCustomMealId,
 } from "../services/customMealService.js";
+import Loading from "../components/loading";
 
 function MealDetails() {
   const { id } = useParams();
@@ -79,10 +80,10 @@ function MealDetails() {
   if (loading) {
     return (
       <main className="meal-details-page container">
-        <p className="meal-details-message">Loading meal details...</p>
+        <Loading message="Loading meal details..." />
       </main>
-    );
-  }
+  );
+}
 
   if (error || !meal) {
     return (

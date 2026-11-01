@@ -7,6 +7,7 @@ import SignInPrompt from "../components/common/SignInPrompt.jsx";
 import { listMyMeals } from "../services/customMealService.js";
 import "./Planner.css";
 
+
 function Planner() {
   const {
   planner,
@@ -119,6 +120,26 @@ function Planner() {
       )}
 
       <section className="planner-search">
+        <form onSubmit={handleSearch} className="planner-search-form">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search for a meal"
+            aria-label="Search for a meal"
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="button-spinner"></span>
+                Searching...
+              </>
+              ) : (
+                "Search"
+              )}
+          </button>
+        </form>
 
 <form onSubmit={handleSearch} className="planner-search-form">
   <input
