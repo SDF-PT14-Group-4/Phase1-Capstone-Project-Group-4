@@ -64,6 +64,15 @@ def create_app(test_config=None):
             response.headers.add("Vary", "Origin")
         return response
 
+    @app.after_request
+    def add_security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        if request.is_secure or request.headers.get("X-Forwarded-Proto") == "https":
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
+        return response  
+
     from . import models  # noqa: F401
     from .routes import api, ADMIN_PAGE
     from .account import account
