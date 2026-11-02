@@ -1149,6 +1149,8 @@ If React Router is used, configure the hosting provider to serve the application
 
 The Flask backend can be deployed to a Python-compatible hosting provider, such as Render, with a managed PostgreSQL database or another supported PostgreSQL service.
 
+The repository includes a Render Blueprint at [`render.yaml`](render.yaml). When the Blueprint is applied, Render generates separate production values for `SECRET_KEY` and `JWT_SECRET_KEY`. For an existing Render service, add both variables manually under **Environment > Environment Variables** (never commit their values). Render's generated values remain stable across deploys.
+
 The backend deployment should configure:
 
 - A production WSGI server such as Gunicorn.
