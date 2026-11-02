@@ -15,8 +15,8 @@ jwt = JWTManager()
 def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_mapping(
-        SECRET_KEY=os.getenv("SECRET_KEY", "development-only-change-me"),
-        JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY", "development-only-change-me"),
+        SECRET_KEY=os.getenv("SECRET_KEY"),
+        JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY"),
         SQLALCHEMY_DATABASE_URI=os.getenv(
             "DATABASE_URL",
             "postgresql+psycopg://postgres:postgres@localhost:5432/globaltaste",
@@ -30,6 +30,18 @@ def create_app(test_config=None):
     )
     if test_config:
         app.config.update(test_config)
+
+    # Secrets must come from the environment. A throwaway value is only
+    # allowed in local development (FLASK_DEBUG=1) or under test.
+    dev_mode = os.getenv("FLASK_DEBUG") == "1" or app.config.get("TESTING")
+    for key in ("SECRET_KEY", "JWT_SECRET_KEY"):
+        value = app.config.get(key)
+        if not value and dev_mode:
+            app.config[key] = "development-only-change-me"
+        elif not value or len(value) < 32:
+            raise RuntimeError(
+                f"{key} must be set to a random value of at least 32 characters."
+            )
 
     db.init_app(app)
     migrate.init_app(app, db)
