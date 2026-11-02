@@ -474,6 +474,36 @@ Backend tests cover API and data behaviour using the test configuration. Use Pos
 
 Live application:
 
+Typical build settings:
+
+- **Root directory:** `frontend`
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+
+Configure the frontend environment variable `VITE_API_BASE_URL` to point to the deployed Flask API.
+
+If React Router is used, configure the hosting provider to serve the application entry point for supported client-side routes.
+
+### Backend deployment
+
+The Flask backend can be deployed to a Python-compatible hosting provider, such as Render, with a managed PostgreSQL database or another supported PostgreSQL service.
+
+The repository includes a Render Blueprint at [`render.yaml`](render.yaml). When the Blueprint is applied, Render generates separate production values for `SECRET_KEY` and `JWT_SECRET_KEY`. For an existing Render service, add both variables manually under **Environment > Environment Variables** (never commit their values). Render's generated values remain stable across deploys.
+
+The backend deployment should configure:
+
+- A production WSGI server such as Gunicorn.
+- The production database connection string.
+- Secret keys through environment variables.
+- CORS for the deployed frontend origin.
+- Database migrations.
+- Production logging and error handling.
+
+The exact start command depends on the Flask application's entry point and structure.
+
+### Deployment verification
+
+After deployment:
 https://phase1-capstone-project-group-4.netlify.app/
 
 Typical Netlify build configuration:
