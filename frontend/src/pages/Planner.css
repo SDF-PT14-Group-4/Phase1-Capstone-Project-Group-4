@@ -1,3 +1,4 @@
+
 /* =================================
    Weekly Meal Planner
    ================================= */
@@ -138,12 +139,7 @@
 
 .planner-meal-grid {
   display: grid;
-
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(240px, 1fr)
-  );
-
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-xl);
 }
 
@@ -236,7 +232,6 @@
 
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
-
   padding-bottom: var(--space-md);
 
   border-bottom: 1px solid var(--color-border);
@@ -264,7 +259,6 @@
 .planned-meal {
   display: flex;
   align-items: center;
-
   gap: var(--space-md);
 
   padding: var(--space-md);
@@ -278,11 +272,9 @@
 .planned-meal img {
   width: 72px;
   height: 72px;
-
   flex-shrink: 0;
 
   border-radius: var(--radius-md);
-
   object-fit: cover;
 }
 
@@ -300,79 +292,9 @@
 
 .planned-meal button {
   padding: var(--space-xs) var(--space-sm);
-
   font-size: var(--text-sm);
 }
 
-
-/* =================================
-   Responsive
-   ================================= */
-
-@media (max-width: 800px) {
-  .planner-page {
-    padding-top: var(--space-2xl);
-  }
-
-  .planner-header h1 {
-    font-size: var(--text-3xl);
-  }
-
-  .planner-search-form {
-    flex-direction: column;
-  }
-
-  .planner-search-form button {
-    width: 100%;
-  }
-
-  .planner-day-selector {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .planner-day-selector select {
-    width: 100%;
-  }
-
-  .weekly-plan {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-}
-
-
-@media (max-width: 600px) {
-  .planner-page {
-    padding-top: var(--space-xl);
-    padding-bottom: var(--space-3xl);
-  }
-
-  .planner-header h1 {
-    font-size: var(--text-2xl);
-  }
-
-  .planner-header p {
-    font-size: var(--text-base);
-  }
-
-  .planner-section-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .planner-meal-grid,
-  .planned-meals {
-    grid-template-columns: 1fr;
-  }
-
-  .day-plan {
-    padding: var(--space-lg);
-  }
-
-  .weekly-plan {
-  grid-template-columns: 1fr;
-}
-}
 
 /* =================================
    Planned Meal Links
@@ -412,6 +334,7 @@
   flex-shrink: 0;
 }
 
+
 /* =================================
    Clear Day
    ================================= */
@@ -437,7 +360,7 @@
   cursor: pointer;
 
   transition:
-    background var(--transition-fast),
+    background-color var(--transition-fast),
     color var(--transition-fast),
     border-color var(--transition-fast);
 }
@@ -446,4 +369,78 @@
   background: var(--color-error);
   border-color: var(--color-error);
   color: var(--color-text-light);
+}
+
+
+/* =================================
+   Tablet
+   ================================= */
+
+@media (max-width: 800px) {
+  .planner-page {
+    padding-top: var(--space-2xl);
+  }
+
+  .planner-header h1 {
+    font-size: var(--text-3xl);
+  }
+
+  .planner-search-form {
+    flex-direction: column;
+  }
+
+  .planner-search-form button {
+    width: 100%;
+  }
+
+  .planner-day-selector {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .planner-day-selector select {
+    width: 100%;
+  }
+
+  .weekly-plan {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =================================
+   Mobile
+   ================================= */
+
+@media (max-width: 600px) {
+  .planner-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .planner-header h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .planner-header p {
+    font-size: var(--text-base);
+  }
+
+  .planner-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .planner-meal-grid,
+  .planned-meals {
+    grid-template-columns: 1fr;
+  }
+
+  .day-plan {
+    padding: var(--space-lg);
+  }
+
+  .weekly-plan {
+    grid-template-columns: 1fr;
+  }
 }

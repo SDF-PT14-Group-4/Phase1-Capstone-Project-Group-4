@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getRandomMeal } from "../services/backendMealService";
 import "./Surprise.css";
 
+
 function Surprise() {
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +48,14 @@ function Surprise() {
           onClick={getSurpriseMeal}
           disabled={loading}
         >
-          {loading ? "Finding a meal..." : "Surprise Me!"}
+          {loading ? (
+            <>
+              <span className="button-spinner"></span>
+                Finding a meal...
+            </>
+            ) : (
+                "Surprise Me!"
+              )}
         </button>
       </section>
 

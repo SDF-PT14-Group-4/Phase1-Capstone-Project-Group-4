@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Loading from "../components/loading";
 
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ||
@@ -50,10 +51,8 @@ export default function Cuisines() {
       </section>
 
       {loading && (
-        <p className="cuisine-message">
-          Loading cuisines...
-        </p>
-      )}
+        <Loading message="Loading cuisines..." />
+        )}
 
       {error && (
         <p

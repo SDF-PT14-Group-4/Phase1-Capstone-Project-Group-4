@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategories } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/loading";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -17,7 +18,7 @@ export default function Categories() {
         setCategories(results);
       } catch (error) {
         console.error("Categories error:", error);
-        setError("Unable to load categories.");
+        setError("Unable to load categories. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -28,61 +29,85 @@ export default function Categories() {
 
   if (loading) {
     return (
-      <main className="discovery-page listing-page">
-        <header className="discovery-header">
-          <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+      <main className="category-page container">
+        <header className="category-header">
+          <p className="category-eyebrow">
+            FIND YOUR KIND OF COMFORT
+          </p>
           <h1>Meal categories</h1>
         </header>
-        <p>Loading categories...</p>
+        <Loading message="Loading meal categories..."/>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="discovery-page listing-page">
-        <header className="discovery-header">
-          <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+      <main className="category-page container">
+        <header className="category-header">
+          <p className="category-eyebrow">
+            FIND YOUR KIND OF COMFORT
+          </p>
           <h1>Meal categories</h1>
         </header>
-        <p role="alert">{error}</p>
+
+        <p className="category-message" role="alert">
+          {error}
+        </p>
       </main>
     );
   }
 
   return (
-    <main className="discovery-page listing-page">
-      <header className="discovery-header">
-        <p className="eyebrow">FIND YOUR KIND OF COMFORT</p>
+    <main className="category-page container">
+      <header className="category-header">
+        <p className="category-eyebrow">
+          FIND YOUR KIND OF COMFORT
+        </p>
+
         <h1>Meal categories</h1>
-        <p>
-          From quick breakfasts to special-occasion desserts, find recipes by
-          what you’re craving.
+
+        <p className="category-description">
+          From quick breakfasts to special-occasion desserts, find recipes
+          by what you’re craving.
         </p>
       </header>
 
-      <div className="category-grid">
-        {categories.map((category) => (
-          <Link
-            key={category.idCategory}
-            to={`/categories/${encodeURIComponent(category.strCategory)}`}
-            className="category-card"
-          >
-            <img
-              src={category.strCategoryThumb}
-              alt={category.strCategory}
-            />
+      {categories.length === 0 ? (
+        <p className="category-message">
+          No meal categories are currently available.
+        </p>
+      ) : (
+        <div className="category-grid">
+          {categories.map((category) => (
+            <Link
+              key={category.idCategory}
+              to={`/categories/${encodeURIComponent(
+                category.strCategory
+              )}`}
+              className="category-card"
+            >
+              <img
+                src={category.strCategoryThumb}
+                alt={category.strCategory}
+                loading="lazy"
+                decoding="async"
+              />
 
-            <div className="category-card-content">
-              <h2>{category.strCategory}</h2>
-              <p>{category.strCategoryDescription}</p>
-              <span>
-                Explore recipes <span aria-hidden="true">→</span>
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
+              <div className="category-card-content">
+                <h2>{category.strCategory}</h2>
+
+                <p>{category.strCategoryDescription}</p>
+
+                <span>
+                  Explore recipes{" "}
+                  <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
