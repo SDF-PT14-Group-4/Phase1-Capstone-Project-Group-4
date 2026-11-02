@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import "./MainLayout.css";
 
 function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, sessionNotice, clearSessionNotice } =
+    useAuth();
   const navigate = useNavigate();
 
   function closeMenu() {
@@ -77,7 +78,17 @@ function MainLayout() {
 
             {isAuthenticated ? (
               <>
-                <span className="nav-account">{user.email}</span>
+                <NavLink to="/my-meals" onClick={closeMenu}>
+                  My Meals
+                </NavLink>
+                <NavLink
+                  to="/account"
+                  className="nav-account"
+                  onClick={closeMenu}
+                  title={user.email}
+                >
+                  {user.displayName || user.email}
+                </NavLink>
                 <button
                   type="button"
                   className="nav-auth-button"
@@ -99,6 +110,22 @@ function MainLayout() {
           </div>
         </nav>
       </header>
+
+      {sessionNotice && !isAuthenticated && (
+        <div className="session-notice" role="alert">
+          <span>{sessionNotice}</span>
+          <Link to="/login" onClick={clearSessionNotice}>
+            Log in again
+          </Link>
+          <button
+            type="button"
+            onClick={clearSessionNotice}
+            aria-label="Dismiss message"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <main className="page-content">
         <Outlet />

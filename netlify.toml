@@ -7,3 +7,18 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers. The login token lives in localStorage, so the CSP below is
+# what keeps untrusted scripts off the page: only our own bundle may run.
+# connect-src lists the only servers the app talks to (the Render API and
+# TheMealDB); img-src allows https images because meals and user-added meals
+# use pictures hosted elsewhere. Test a change against the live site before
+# tightening or loosening it.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.onrender.com https://www.themealdb.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

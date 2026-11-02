@@ -15,6 +15,8 @@ import NotFound from "./pages/NotFound";
 import MealDetails from "./pages/MealDetails";
 import Cuisines from "./pages/Cuisines";
 import AdminMeals from "./pages/AdminMeals";
+import Account from "./pages/Account";
+import MyMeals from "./pages/MyMeals";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="/planner" element={<Planner />} />
           <Route path="/basket" element={<Basket />} />
           <Route path="/surprise" element={<Surprise />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/my-meals" element={<MyMeals />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin/meals" element={<AdminMeals />} />

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import MealGrid from "../components/meal/MealGrid";
 import { getMealsByCuisine } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/loading";
 
 export default function CuisineMeals() {
   const { cuisine } = useParams();
@@ -41,8 +42,10 @@ export default function CuisineMeals() {
     <main className="discovery-page listing-page">
       <h1>{decodedCuisine} Cuisine</h1>
 
-      {loading && decodedCuisine && (
-        <p>Loading {decodedCuisine} meals...</p>
+      {loading && (
+      <Loading
+        message={`Loading ${decodedCuisine || "cuisine"} meals...`}
+      />
       )}
 
       {displayedError && <p role="alert">{displayedError}</p>}

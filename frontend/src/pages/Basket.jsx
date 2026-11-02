@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useBasket } from "../hooks/useBasket.js";
+import SignInPrompt from "../components/common/SignInPrompt.jsx";
 import "./Basket.css";
 
 function Basket() {
@@ -12,6 +13,7 @@ function Basket() {
     decrement,
     removeFromBasket,
     clearBasket,
+    isGuest,
   } = useBasket();
 
   return (
@@ -24,6 +26,13 @@ function Basket() {
           continuing.
         </p>
       </header>
+
+      {isGuest && (
+        <SignInPrompt
+          title="Sign in to keep your basket"
+          message="Without an account your basket is only kept on this device and is lost if you clear your browser data. Sign in to save it to your account and use it anywhere."
+        />
+      )}
 
       {error && (
         <p className="basket-error" role="alert">

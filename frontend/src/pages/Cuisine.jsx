@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCuisines } from "../services/backendMealService";
 import "./Discovery.css";
+import Loading from "../components/loading";
 
 export default function Cuisines() {
   const [cuisines, setCuisines] = useState([]);
@@ -33,7 +34,7 @@ export default function Cuisines() {
           <p className="eyebrow">TASTE THE WORLD</p>
           <h1>Explore cuisines</h1>
         </header>
-        <p>Loading cuisines...</p>
+        <Loading message="Loading cuisines..."/>
       </main>
     );
   }

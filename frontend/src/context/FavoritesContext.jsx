@@ -222,6 +222,7 @@ export function FavoritesProvider({ children }) {
   return (
     <FavoritesContext.Provider
       value={{
+        isGuest: !accessToken,
         favorites,
         loading,
         error,

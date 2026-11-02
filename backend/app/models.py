@@ -20,7 +20,15 @@ class User(db.Model):
     favorites = db.relationship("FavoriteMeal", back_populates="user", cascade="all, delete-orphan")
     planned_meals = db.relationship("PlannedMeal", back_populates="user", cascade="all, delete-orphan")
     basket_items = db.relationship("BasketItem", back_populates="user", cascade="all, delete-orphan")
+    custom_meals = db.relationship("CustomMeal", back_populates="user", cascade="all, delete-orphan")
     last_login_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+    # Profile details (optional personalisation).
+    display_name = db.Column(db.String(60), nullable=True)
+    dietary_preferences = db.Column(db.JSON, nullable=False, default=list)
+
+    # Bumped on password change so every older token stops working.
+    token_version = db.Column(db.Integer, nullable=False, default=0)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -99,3 +107,44 @@ class BasketItem(MealRecord):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     price = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     user = db.relationship("User", back_populates="basket_items")
+
+
+class RevokedToken(db.Model):
+    """JWT IDs that were logged out before they expired."""
+
+    __tablename__ = "revoked_tokens"
+
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    expires_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class RateLimitEvent(db.Model):
+    """One row per counted attempt (failed login, registration, re-auth failure)."""
+
+    __tablename__ = "rate_limit_events"
+
+    id = db.Column(db.Integer, primary_key=True)
+    bucket = db.Column(db.String(320), nullable=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now, index=True)
+
+
+class CustomMeal(db.Model):
+    """A meal written by a user. Private unless the owner marks it public."""
+
+    __tablename__ = "custom_meals"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = db.Column(db.String(255), nullable=False)
+    category = db.Column(db.String(120), nullable=False, default="")
+    cuisine = db.Column(db.String(120), nullable=False, default="")
+    image = db.Column(db.String(500), nullable=False, default="")
+    ingredients = db.Column(db.JSON, nullable=False, default=list)
+    instructions = db.Column(db.Text, nullable=False, default="")
+    is_public = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now)
+
+    user = db.relationship("User", back_populates="custom_meals")

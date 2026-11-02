@@ -1,6 +1,7 @@
 import MealGrid from "../components/meal/MealGrid";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { useAuth } from "../hooks/useAuth.js";
+import SignInPrompt from "../components/common/SignInPrompt.jsx";
 
 export default function Favorites() {
   const { favorites, loading, error, setError } = useFavorites();
@@ -22,13 +23,10 @@ export default function Favorites() {
       </section>
 
       {!isAuthenticated ? (
-        <section className="favorites-empty">
-          <h2>Sign in to view your favorites</h2>
-          <p>
-            Your saved recipes are connected to your account.
-            Sign in to access them across sessions.
-          </p>
-        </section>
+        <SignInPrompt
+          title="Sign in to view your favorites"
+          message="Your saved recipes are connected to your account. Sign in to save meals you love and find them again on any device. You can still browse every recipe without an account."
+        />
       ) : loading ? (
         <section className="favorites-empty" aria-live="polite">
           <p>Loading your favorites...</p>

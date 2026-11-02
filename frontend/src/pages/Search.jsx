@@ -3,6 +3,7 @@ import MealGrid from "../components/meal/MealGrid";
 import { searchMeals } from "../services/backendMealService";
 import "./Discovery.css";
 
+
 function Search() {
   const [query, setQuery] = useState("");
   const [meals, setMeals] = useState([]);
@@ -58,7 +59,14 @@ function Search() {
           placeholder="Try “chicken”, “pasta” or “soup”"
         />
         <button className="discovery-button discovery-button-primary" type="submit" disabled={loading}>
-          {loading ? "Searching..." : "Search"}
+          {loading ? (
+            <>
+              <span className="button-spinner"></span>
+              "Searching..."
+            </> 
+          ): (
+            "Search"
+          )}
         </button>
       </form>
 

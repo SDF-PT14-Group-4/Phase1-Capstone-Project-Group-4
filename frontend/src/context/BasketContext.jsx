@@ -17,7 +17,7 @@ const DEMO_PRICE = 10;
 export function BasketProvider({ children }) {
   const { accessToken } = useAuth();
   return (
-    <BasketStateProvider key={accessToken || "guest"} accessToken={accessToken}>
+    <BasketStateProvider accessToken={accessToken}>
       {children}
     </BasketStateProvider>
   );
@@ -188,6 +188,7 @@ function BasketStateProvider({ children, accessToken }) {
   return (
     <BasketContext.Provider
       value={{
+        isGuest: !accessToken,
         items,
         total: basketTotal,
         loading,
